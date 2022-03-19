@@ -1,7 +1,4 @@
 
-
-
-
 def init_tables(curs):
     curs.execute('CREATE TABLE USER ('
                  'NAME VARCHAR(255)'
@@ -143,12 +140,13 @@ def view_user_tools(username):
     """
 
 
-def create_category(category_name):
+def create_category(barcode, category_name):
     """
     This function allows users to make a category. It will run through the database and check if the category
     already exists. If the category exists it will return a 1. If the category does not exist it will return a 0 and
     add the category. If there was an error the function will return a -1.
 
+    :param barcode:       The barcode of the tool to add the category to.
     :param category_name: The name of the category to add.
     :return:              An integer value denoting the status:
                             -1: There was an error adding the category.
@@ -157,13 +155,14 @@ def create_category(category_name):
     """
 
 
-def search_for_tool(barcode):
+def search_for_tool(identifier, identifier_type):
     """
     This function is responsible for searching for a tool. If the tool is found then it will return it. Otherwise,
     it will return None.
 
-    :param barcode: The barcode of the tool to find.
-    :return:        The tool, if found. If not found it will return None.
+    :param identifier:      What to search for
+    :param identifier_type: The field we will search (barcode, name, category)
+    :return:                The list of tools found by the search.
     """
 
 
@@ -240,10 +239,10 @@ def handle_request(is_accepted, request_id):
     :return:            Boolean value denoting if the action was completed successfully.
     """
     if is_accepted:
-        #accept only put num = 0 so there were no errors
+        # accept only put num = 0 so there were no errors
         num = 0
     else:
-        #do not accept
+        # do not accept
         num = 1
 
 
@@ -297,3 +296,38 @@ def return_tool(request_id, username):
     :param username:   The user who is returning the tool.
     :return:           Boolean value denoting if the action was completed successfully.
     """
+
+
+def tool_to_string(barcode, name, shareable, category, description):
+    """
+    This function is the to string for a tool. This will make the lists easier as we will be sending back a list of
+    to strings for each tool found.
+
+    :param barcode:     The barcode of the tool.
+    :param name:        The name of the tool.
+    :param shareable:   The boolean value of if the tool can be shared
+    :param category:    The category/ies the tool falls under.
+    :param description: The description of the tool.
+    :return:            The to string of the tool.
+    """
+
+    return "Barcode: " + barcode + ", Name: " + name + ", Shareable: " + shareable + "\n" \
+           "Category: " + category + "\n" \
+           "Description: " + description + "\n"
+
+
+def request_to_string(request_id, username, barcode, status, borrow_period, request_date):
+    """
+    This function is the to string for a request. This will make the lists easier as we will be sending back a list of
+    to strings for each request found.
+
+    :param request_id:    The id of the request.
+    :param username:      The username of the user requesting the tool.
+    :param barcode:       The tool that is being requested.
+    :param status:        The status of the request (accepted, declined).
+    :param borrow_period: The date it is to be returned.
+    :param request_date:  The date it was requested.
+    :return:              The to string of the request.
+    """
+
+    return ""

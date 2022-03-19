@@ -53,12 +53,13 @@ def edit_tool():
 
 
 def create_category():
+    barcode = read_barcode()
     category_name = input("\tPlease enter a category name (< 20 char): ")
     while len(category_name) > 20:
         print("Please enter a category name less than 20 characters")
         category_name = input("\tPlease enter a category name (< 20 char): ")
 
-    return category_name
+    return barcode, category_name
 
 
 def search_for_tool():
@@ -95,8 +96,8 @@ def request_borrow():
 
 
 def handle_request():
-    is_accepted = input("\tDo you accept this request (yes/no): ")
-    while is_accepted.lower() != "yes" and is_accepted.lower() != "no":
+    is_accepted = input("\tDo you accept this request (accept/decline): ")
+    while is_accepted.lower() != "accept" and is_accepted.lower() != "decline":
         is_accepted = input("\tPlease enter either yes or no: ")
 
     request_id = input("\tPlease enter a request id (< 48 char): ")
