@@ -8,7 +8,8 @@ class TestDB(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.server = start_server()
+        cls.server = start_server().start()
+        # return cls.server
 
     def test_can_connect(self):
         conn = get_conn()
@@ -19,4 +20,6 @@ class TestDB(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
+        cls.server = start_server()
+        cls.server.start()
         cls.server.close()

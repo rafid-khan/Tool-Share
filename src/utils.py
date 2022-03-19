@@ -1,15 +1,16 @@
 import os
 
+import psycopg2
 import yaml
 from psycopg2 import connect
 from sshtunnel import SSHTunnelForwarder, HandlerSSHTunnelForwarderError
+
 
 
 def get_config():
     yml_path = os.path.join(os.path.dirname(__file__), '../db-cfg.yml')
     with open(yml_path, 'r') as file:
         cfg = yaml.load(file, Loader=yaml.FullLoader)
-
         return cfg
 
 
@@ -26,30 +27,30 @@ def start_server():
     try:
         with SSHTunnelForwarder(**server_params) as tunnel:
 
-            server = tunnel.start()
 
             print('SSH tunnel established')
-
-            return server
+            return tunnel
 
     except HandlerSSHTunnelForwarderError as err:
         print('Connection failed', err)
 
 
-def get_conn():
-    cfg = get_config()
+def get_conn(server):
 
+    cfg = get_config()
+    # server = start_server()
+    # server.start()
     db_params = {
         'database': cfg['database'],
         'user': cfg['user'],
         'password': cfg['pass'],
         'host': cfg['host'],
-        'port': cfg['port']
+        'port': str(server.local_bind_port)
     }
 
     conn = connect(**db_params)
-    cur = conn.cursor()
+
 
     print('Database connection established')
 
-    return cur
+    return conn
