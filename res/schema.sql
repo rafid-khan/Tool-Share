@@ -8,21 +8,15 @@ create table if not exists ts_user
     last_name        varchar(255),
     username         varchar(64),
     password         varchar(64),
+    email            varchar(255),
     creation_date    date default now(),
     last_access_date date
-);
-
-create table if not exists ts_email
-(
-    username varchar(64),
-    email    varchar(255),
-    primary key (username, email)
 );
 
 create table if not exists ts_ownership
 (
     username       varchar(64),
-    barcode        integer,
+    barcode        bigint,
     purchase_price decimal,
     purchase_date  date,
     primary key (username, barcode)
@@ -30,7 +24,7 @@ create table if not exists ts_ownership
 
 create table if not exists ts_tool
 (
-    barcode     integer primary key,
+    barcode     bigint primary key,
     category    varchar(100),
     shareable   boolean,
     name        varchar(100),

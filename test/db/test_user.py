@@ -18,6 +18,11 @@ class TestUser(TestCase):
         self.test_params = {'first_name': 'idiot', 'last_name': 'sandwich'}
         self.user_count = row_count("SELECT * FROM ts_test_catalog.ts_user")
 
+    def test_fetch_user(self):
+        res = fetch_user(id=self.test_user['user_id'])
+
+        self.assertIsNotNone(res)
+
     def test_fetch_user_bad_id(self):
         res = fetch_user(id=0)
 

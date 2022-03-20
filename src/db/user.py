@@ -17,7 +17,7 @@ def fetch_all_users():
 
 def insert_user(**kwargs):
     commit("""
-        INSERT INTO ts_user (first_name, last_name, username, password) VALUES (%s, %s, %s, %s)
+        INSERT INTO ts_user (first_name, last_name, username, password, email) VALUES (%s, %s, %s, %s, %s)
     """, (tuple(kwargs.values())))
 
 
