@@ -1,25 +1,22 @@
-import unittest
 from unittest import TestCase
 
-from src.db.user import fetch_user, fetch_all_users, insert_user, update_user
-from src.db.utils import create_server, connect
-from test.db.utils import TEST_USER, assert_sql_count, clean_test_data
+from src.db.user import fetch_user, fetch_all_users, insert_user, update_user, delete_user
+from src.db.utils import create_server, row_count
+from test.db.utils import TEST_USER, assert_sql_count, clean_test_data, fetch_test_user, insert_test_user
 
 
 class TestUser(TestCase):
-    conn = None
+    server = None
 
     @classmethod
     def setUpClass(cls) -> None:
         cls.server = create_server()
-        cls.conn = connect()
-        cls.cur = cls.conn.cursor()
 
     def setUp(self) -> None:
-        clean_test_data()
-
-        self.cur.execute("SELECT * FROM ts_test_catalog.ts_user")
-        self.user_count = self.cur.rowcount
+        insert_test_user()
+        self.test_user = fetch_test_user()
+        self.test_params = {'first_name': 'idiot', 'last_name': 'sandwich'}
+        self.user_count = row_count("SELECT * FROM ts_test_catalog.ts_user")
 
     def test_fetch_user_bad_id(self):
         res = fetch_user(id=0)
@@ -36,17 +33,24 @@ class TestUser(TestCase):
 
         assert_sql_count(test=self, sql="SELECT * FROM ts_test_catalog.ts_user", n=self.user_count + 1)
 
-    @unittest.skip('not implemented')
     def test_update_user(self):
-        insert_user(**TEST_USER)
+        update_user(self.test_user['user_id'], **self.test_params)
 
-        update_user(**{'first_name': 'idiot', 'last_name': 'sandwich'})
+        updated_user = fetch_test_user()
 
-    @unittest.skip('not implemented')
+        self.assertEqual(updated_user['first_name'], self.test_params['first_name'])
+        self.assertEqual(updated_user['last_name'], self.test_params['last_name'])
+
+        assert_sql_count(test=self, sql="SELECT * FROM ts_test_catalog.ts_user", n=self.user_count)
+
     def test_delete_user(self):
-        pass
+        delete_user(self.test_user['user_id'])
+
+        assert_sql_count(test=self, sql="SELECT * FROM ts_test_catalog.ts_user", n=self.user_count - 1)
+
+    def tearDown(self) -> None:
+        clean_test_data()
 
     @classmethod
     def tearDownClass(cls) -> None:
-        # clean_test_data()
-        cls.conn.close()
+        cls.server.close()

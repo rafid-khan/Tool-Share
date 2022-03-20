@@ -50,7 +50,8 @@ def connect():
         'user': cfg['user'],
         'password': cfg['pass'],
         'host': cfg['host'],
-        'port': cfg['port']
+        'port': cfg['port'],
+        'options': f'-c search_path={cfg["schema"]}'
     }
 
     return psycopg2.connect(**db_params)
@@ -84,3 +85,13 @@ def commit(sql, args=None):
     conn.close()
 
     return result
+
+
+def row_count(sql, args=None):
+    conn = connect()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute(sql, args)
+    conn.commit()
+    conn.close()
+
+    return cur.rowcount
