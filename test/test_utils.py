@@ -1,6 +1,6 @@
 import unittest
 
-from src.utils import start_server, get_conn
+from src.utils import start_server
 
 
 class TestDB(unittest.TestCase):
@@ -12,14 +12,9 @@ class TestDB(unittest.TestCase):
         # return cls.server
 
     def test_can_connect(self):
-        conn = get_conn()
-        cur = conn.cursor()
-        cur.execute('SELECT VERSION()')
-        self.assertTrue(cur.fetchone()[0].startswith('PostgreSQL'))
-        conn.close()
+        self.cur.execute('SELECT VERSION()')
+        self.assertTrue(self.cur.fetchone()[0].startswith('PostgreSQL'))
 
     @classmethod
     def tearDownClass(cls) -> None:
-        cls.server = start_server()
-        cls.server.start()
         cls.server.close()

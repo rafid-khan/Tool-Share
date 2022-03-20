@@ -1,42 +1,36 @@
-
-def init_tables(curs):
-    curs.execute('CREATE TABLE USER ('
-                 'NAME VARCHAR(255)'
-                 'USERNAME VARCHAR(64)'
-                 'PASSWORD VARCHAR(64)'
-                 'CREATION_DATE DATE'
-                 'LAST_ACCESS_DATE DATE'
-                 'PRIMARY KEY (USERNAME))')
-
-    curs.execute('CREATE TABLE EMAIL ('
-                 'USERNAME VARCHAR(64)'
-                 'EMAIL VARCHAR(255)'
-                 'PRIMARY KEY (USERNAME, EMAIL))')
-
-    curs.execute('CREATE TABLE OWNERSHIP ('
-                 'USERNAME VARCHAR(64)'
-                 'BARCODE VARCHAR(48)'
-                 'PURCHASE_PRICE '
-                 'PURCHASE_DATE DATE'
-                 'PRIMARY KEY (USERNAME, BARCODE))')
-
-    curs.execute('CREATE TABLE TOOL ('
-                 'BARCODE VARCHAR(48)'
-                 'SHAREABLE BOOLEAN'
-                 'NAME VARCHAR(100)'
-                 'DESCRIPTION VARCHAR(160)'
-                 'PRIMARY KEY (BARCODE))')
-
-    curs.execute('CREATE TABLE CATEGORY ('
-                 'TAG_NAME VARCHAR(20)'
-                 'BARCODE VARCHAR(48)'
-                 'PRIMARY KEY (TAG_NAME, BARCODE))')
-
-    # I think he wants us to get rid of category as a whole so I just put category in TOOL table :)
-    # curs.execute('CREATE TABLE CATEGORY ('
-    #              'TAG_NAME VARCHAR(20)'
-    #              'BARCODE VARCHAR(48)'
-    #              'PRIMARY KEY (TAG_NAME, BARCODE) )')
+# def init_tables(curs):
+#     curs.execute('CREATE TABLE USER ('
+#                  'NAME VARCHAR(255)'
+#                  'USERNAME VARCHAR(64)'
+#                  'PASSWORD VARCHAR(64)'
+#                  'CREATION_DATE DATE'
+#                  'LAST_ACCESS_DATE DATE'
+#                  'PRIMARY KEY (USERNAME))')
+#
+#     curs.execute('CREATE TABLE EMAIL ('
+#                  'USERNAME VARCHAR(64)'
+#                  'EMAIL VARCHAR(255)'
+#                  'PRIMARY KEY (USERNAME, EMAIL))')
+#
+#     curs.execute('CREATE TABLE OWNERSHIP ('
+#                  'USERNAME VARCHAR(64)'
+#                  'BARCODE VARCHAR(48)'
+#                  'PURCHASE_PRICE '
+#                  'PURCHASE_DATE DATE'
+#                  'PRIMARY KEY (USERNAME, BARCODE))')
+#
+#     curs.execute('CREATE TABLE TOOL ('
+#                  'BARCODE VARCHAR(48)'
+#                  'SHAREABLE BOOLEAN'
+#                  'NAME VARCHAR(100)'
+#                  'DESCRIPTION VARCHAR(160)'
+#                  'PRIMARY KEY (BARCODE))')
+#
+#     # I think he wants us to get rid of category as a whole so I just put category in TOOL table :)
+#     curs.execute('CREATE TABLE CATEGORY ('
+#                  'TAG_NAME VARCHAR(20)'
+#                  'BARCODE VARCHAR(48)'
+#                  'PRIMARY KEY (TAG_NAME, BARCODE))')
 
 
 def create_account(username, password, first_name, last_name, email):
@@ -53,6 +47,7 @@ def create_account(username, password, first_name, last_name, email):
     :return:           Boolean value denoting if the action was completed successfully.
     """
     return True
+
 
 def log_in(username, password):
     """
@@ -312,8 +307,8 @@ def tool_to_string(barcode, name, shareable, category, description):
     """
 
     return "Barcode: " + barcode + ", Name: " + name + ", Shareable: " + shareable + "\n" \
-           "Category: " + category + "\n" \
-           "Description: " + description + "\n"
+                                                                                     "Category: " + category + "\n" \
+                                                                                                               "Description: " + description + "\n"
 
 
 def request_to_string(request_id, username, barcode, status, borrow_period, request_date):

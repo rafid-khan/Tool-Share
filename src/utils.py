@@ -1,10 +1,8 @@
 import os
 
-import psycopg2
 import yaml
 from psycopg2 import connect
 from sshtunnel import SSHTunnelForwarder, HandlerSSHTunnelForwarderError
-
 
 
 def get_config():
@@ -27,7 +25,6 @@ def start_server():
     try:
         with SSHTunnelForwarder(**server_params) as tunnel:
 
-
             print('SSH tunnel established')
             return tunnel
 
@@ -36,7 +33,6 @@ def start_server():
 
 
 def get_conn(server):
-
     cfg = get_config()
     # server = start_server()
     # server.start()
@@ -49,7 +45,6 @@ def get_conn(server):
     }
 
     conn = connect(**db_params)
-
 
     print('Database connection established')
 

@@ -1,9 +1,8 @@
-import sys
-
 import re
-from src.utils import start_server, get_conn
-import src.SQL_Queries as sql
+
 import ptui_helper as helper
+import src.queries as sql
+from src.utils import start_server, get_conn
 
 
 def log_in():
@@ -62,7 +61,7 @@ def log_in_menu(USERNAME):
                 if sql.add_tool(description, name, USERNAME):
                     print("Successfully added a tool\n"
                           "\tName: " + name + "\n"
-                          "\tDescription: " + description + "\n")
+                                              "\tDescription: " + description + "\n")
                 else:
                     print("Failed to add tool. Please try again.")
             case "2":
@@ -77,8 +76,8 @@ def log_in_menu(USERNAME):
                 if sql.edit_tool(edit_string, what_to_edit):
                     print("Successfully edited a tool\n"
                           "\tBarcode: " + barcode + "\n"
-                          "\tName or Description: " + what_to_edit + "\n"
-                          "\tChange: " + edit_string + "\n")
+                                                    "\tName or Description: " + what_to_edit + "\n"
+                                                                                               "\tChange: " + edit_string + "\n")
                 else:
                     print("Failed to edit tool. Please try again.")
             case "4":
@@ -94,11 +93,11 @@ def log_in_menu(USERNAME):
                 elif status == 0:
                     print("Successfully added a category to a tool.\n"
                           "New category: " + category_name + " was added successfully!\n"
-                          "Barcode: " + barcode + "\n")
+                                                             "Barcode: " + barcode + "\n")
                 elif status == 1:
                     print("Successfully added a category to a tool.\n"
                           "Category: " + category_name + " already exists.\n"
-                          "Barcode: " + barcode + "\n")
+                                                         "Barcode: " + barcode + "\n")
 
             case "6":
                 identifier, identifier_type = helper.search_for_tool()
@@ -175,20 +174,20 @@ def main():
             if choice1 == "1":
                 # log_in_again = "yes"
                 # while log_in_again.lower() == "yes":
-                valid_login, USERNAME = log_in()
+                valid_login, username = log_in()
                 if valid_login:
                     print("Log in successful\n"
                           "What would you like to do next")
-                    choice1 = log_in_menu(USERNAME)
+                    choice1 = log_in_menu(username)
                 else:
                     print("Incorrect username or password. Please try a valid log in.\n")
                     log_in_again = input("Would you like to try logging in again (yes/no): ")
                     if log_in_again.lower() == "no":
                         choice1 = "4"
             elif choice1 == "2":
-                valid_creation, USERNAME = create_account()
+                valid_creation, username = create_account()
                 if valid_creation:
-                    choice1 = log_in_menu(USERNAME)
+                    choice1 = log_in_menu(username)
                 else:
                     print("There was an error with your account creation.\n")
                     create_account_again = input("Would you like to try creating an account again (yes/no): ")
@@ -199,6 +198,7 @@ def main():
                 choice1 = "4"
 
     server.close()
+
 
 if __name__ == '__main__':
     main()
