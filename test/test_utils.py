@@ -1,6 +1,6 @@
 import unittest
 
-from src.utils import start_server
+from src.db.utils import create_server, connect
 
 
 class TestDB(unittest.TestCase):
@@ -8,8 +8,11 @@ class TestDB(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.server = start_server().start()
-        # return cls.server
+        cls.server = create_server()
+
+    def setUp(self) -> None:
+        self.conn = connect()
+        self.cur = self.conn.cursor()
 
     def test_can_connect(self):
         self.cur.execute('SELECT VERSION()')

@@ -2,7 +2,7 @@ import re
 
 import ptui_helper as helper
 import src.queries as sql
-from src.utils import start_server, get_conn
+from db.utils import connect, create_server
 
 
 def log_in():
@@ -33,7 +33,7 @@ def create_account():
         return False, None
 
 
-def log_in_menu(USERNAME):
+def log_in_menu(username):
     while 1:
         print("Please specify what you would like to do next:\n"
               "\t 1: Add a new tool.\n"
@@ -58,7 +58,7 @@ def log_in_menu(USERNAME):
         match choice2:
             case "1":
                 description, name = helper.add_tool()
-                if sql.add_tool(description, name, USERNAME):
+                if sql.add_tool(description, name, username):
                     print("Successfully added a tool\n"
                           "\tName: " + name + "\n"
                                               "\tDescription: " + description + "\n")
@@ -81,7 +81,7 @@ def log_in_menu(USERNAME):
                 else:
                     print("Failed to edit tool. Please try again.")
             case "4":
-                tool_list = sql.view_user_tools(USERNAME)
+                tool_list = sql.view_user_tools(username)
                 for tool in tool_list:
                     print("Barcode: " + tool)
                 print("\n")
@@ -116,7 +116,7 @@ def log_in_menu(USERNAME):
                     for tool in tool_list:
                         print(tool)
             case "8":
-                tool_list = sql.get_users_borrowed_tools(USERNAME)
+                tool_list = sql.get_users_borrowed_tools(username)
                 if tool_list is None:
                     print("Error could not find tools! Please try again.")
                 else:
@@ -124,7 +124,7 @@ def log_in_menu(USERNAME):
                         print(tool)
             case "9":
                 barcode, borrow_period = helper.request_borrow()
-                tool_list = sql.request_borrow(barcode, borrow_period, USERNAME)
+                tool_list = sql.request_borrow(barcode, borrow_period, username)
                 if tool_list is None:
                     print("Error could not find tools! Please try again.")
                 else:
@@ -137,9 +137,9 @@ def log_in_menu(USERNAME):
                 else:
                     print("There was an error with your request! Please try again.")
             case "11":
-                sql.get_users_requests(USERNAME)
+                sql.get_users_requests(username)
             case "12":
-                sql.get_users_requests_received(USERNAME)
+                sql.get_users_requests_received(username)
             case "13":
                 sql.get_lent_tools()
             case "14":
@@ -148,19 +148,17 @@ def log_in_menu(USERNAME):
                 sql.get_overdue_tools()
             case "16":
                 request_id = helper.return_tool()
-                sql.return_tool(request_id, USERNAME)
+                sql.return_tool(request_id, username)
             case "17":
                 return "4"
 
 
 def main():
     # starting server
-
-    server = start_server()
-    server.start()
+    server = create_server()
 
     # initializing a connection and retrieving a cursor
-    conn = get_conn(server)
+    conn = connect()
     curs = conn.cursor()
     run_program = "1"
     while run_program == "1":
