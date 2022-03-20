@@ -4,7 +4,8 @@ set timezone = 'America/New_york';
 create table if not exists ts_user
 (
     user_id          serial primary key,
-    name             varchar(255),
+    first_name       varchar(255),
+    last_name        varchar(255),
     username         varchar(64),
     password         varchar(64),
     creation_date    date default now(),
