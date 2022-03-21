@@ -307,8 +307,7 @@ def tool_to_string(barcode, name, shareable, category, description):
     """
 
     return "Barcode: " + barcode + ", Name: " + name + ", Shareable: " + shareable + "\n" \
-                                                                                     "Category: " + category + "\n" \
-                                                                                                               "Description: " + description + "\n"
+           + "Category: " + category + "\n" + "Description: " + description + "\n"
 
 
 def request_to_string(request_id, username, barcode, status, borrow_period, request_date):
@@ -325,4 +324,5 @@ def request_to_string(request_id, username, barcode, status, borrow_period, requ
     :return:              The to string of the request.
     """
 
-    return ""
+    return "Request id: " + request_id + "\n\tUsername: " + username + "\n\tBarcode: " + barcode + \
+           "\n\tStatus: " + status + "\n\tBorrowed - Return: " + borrow_period + " - " + request_date + "\n"

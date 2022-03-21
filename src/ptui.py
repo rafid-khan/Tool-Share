@@ -137,18 +137,49 @@ def log_in_menu(username):
                 else:
                     print("There was an error with your request! Please try again.")
             case "11":
-                sql.get_users_requests(username)
+                request_list = sql.get_users_requests(username)
+                if request_list is None:
+                    print("The user: " + username + " has no request history.")
+                else:
+                    print("User's requests: ")
+                    for request in request_list:
+                        print("\t" + request)
             case "12":
-                sql.get_users_requests_received(username)
+                request_list = sql.get_users_requests_received(username)
+                if request_list is None:
+                    print("The user: " + username + " has no request history.")
+                else:
+                    print("User's requests: ")
+                    for request in request_list:
+                        print("\t" + request)
             case "13":
-                sql.get_lent_tools()
+                tool_dict = sql.get_lent_tools()
+                if tool_dict is None:
+                    print("There are no lent tools")
+                else:
+                    for tool in tool_dict:
+                        print(tool)
             case "14":
-                sql.get_borrowed_tools()
+                tool_dict = sql.get_borrowed_tools()
+                if tool_dict is None:
+                    print("There are no borrowed tools")
+                else:
+                    for tool in tool_dict:
+                        print(tool)
             case "15":
-                sql.get_overdue_tools()
+                tool_dict = sql.get_overdue_tools()
+                if tool_dict is None:
+                    print("There are no overdue tools")
+                else:
+                    for tool in tool_dict:
+                        print(tool)
             case "16":
                 request_id = helper.return_tool()
-                sql.return_tool(request_id, username)
+                isReturned = sql.return_tool(request_id, username)
+                if isReturned:
+                    print("You have successfully returned the request: " + request_id)
+                else:
+                    print("There was an error with returning the request: " + request_id)
             case "17":
                 return "4"
 
