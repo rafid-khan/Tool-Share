@@ -176,7 +176,7 @@ def sort_tools(sort_ascending, sort_name):
 
 def get_users_borrowed_tools(username):
     """
-    This function will return the users borrowed tools so they can see what they are currently borrowing from other
+    This function will return the users borrowed tools, so they can see what they are currently borrowing from other
     users.
 
     :param username: The username of the user.
