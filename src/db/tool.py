@@ -1,5 +1,6 @@
 from psycopg2.sql import SQL, Identifier
 
+from api.utils import SortType
 from .utils import fetch_many, fetch_one, commit
 
 
@@ -9,9 +10,18 @@ def fetch_tool(code):
     """, (code,))
 
 
-def fetch_all_tools():
+def fetch_all_tools(sort: SortType):
     return fetch_many("""
+        SELECT * FROM ts_tool ORDER BY name %s
+    """, (sort.value,)) if sort else fetch_many("""
         SELECT * FROM ts_tool
+    """)
+
+
+# TODO: Test
+def fetch_available_tools():
+    return fetch_many("""
+        SELECT * FROM ts_tool WHERE shareable = true
     """)
 
 

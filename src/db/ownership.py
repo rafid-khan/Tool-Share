@@ -3,10 +3,12 @@ from psycopg2.sql import SQL, Identifier
 from .utils import fetch_one, commit
 
 
-def fetch_ownership(user, code):
+def fetch_ownership(user, code=None):
     return fetch_one("""
         SELECT * FROM ts_ownership WHERE username = %s AND barcode = %s
-    """, (user, code))
+    """, (user, code)) if code else fetch_one("""
+        SELECT * FROM ts_ownership WHERE username = %s
+    """, (user,))
 
 
 def insert_ownership(**kwargs):

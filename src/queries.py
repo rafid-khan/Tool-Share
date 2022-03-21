@@ -1,38 +1,3 @@
-# def init_tables(curs):
-#     curs.execute('CREATE TABLE USER ('
-#                  'NAME VARCHAR(255)'
-#                  'USERNAME VARCHAR(64)'
-#                  'PASSWORD VARCHAR(64)'
-#                  'CREATION_DATE DATE'
-#                  'LAST_ACCESS_DATE DATE'
-#                  'PRIMARY KEY (USERNAME))')
-#
-#     curs.execute('CREATE TABLE EMAIL ('
-#                  'USERNAME VARCHAR(64)'
-#                  'EMAIL VARCHAR(255)'
-#                  'PRIMARY KEY (USERNAME, EMAIL))')
-#
-#     curs.execute('CREATE TABLE OWNERSHIP ('
-#                  'USERNAME VARCHAR(64)'
-#                  'BARCODE VARCHAR(48)'
-#                  'PURCHASE_PRICE '
-#                  'PURCHASE_DATE DATE'
-#                  'PRIMARY KEY (USERNAME, BARCODE))')
-#
-#     curs.execute('CREATE TABLE TOOL ('
-#                  'BARCODE VARCHAR(48)'
-#                  'SHAREABLE BOOLEAN'
-#                  'NAME VARCHAR(100)'
-#                  'DESCRIPTION VARCHAR(160)'
-#                  'PRIMARY KEY (BARCODE))')
-#
-#     # I think he wants us to get rid of category as a whole so I just put category in TOOL table :)
-#     curs.execute('CREATE TABLE CATEGORY ('
-#                  'TAG_NAME VARCHAR(20)'
-#                  'BARCODE VARCHAR(48)'
-#                  'PRIMARY KEY (TAG_NAME, BARCODE))')
-
-
 def create_account(username, password, first_name, last_name, email):
     """
     This function will take in a users information and store it into the account. Affectively adding the user
