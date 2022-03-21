@@ -15,16 +15,18 @@ create table if not exists ts_user
 
 create table if not exists ts_ownership
 (
+    ownership_id   serial primary key,
     username       varchar(64),
     barcode        bigint,
     purchase_price decimal,
-    purchase_date  date,
-    primary key (username, barcode)
+    purchase_date  date
+--     primary key (username, barcode)
 );
 
 create table if not exists ts_tool
 (
-    barcode     bigint primary key,
+    tool_id     serial primary key,
+    barcode     bigint,
     category    varchar(100),
     shareable   boolean,
     name        varchar(100),

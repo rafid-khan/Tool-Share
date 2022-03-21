@@ -9,6 +9,14 @@ TEST_OWNERSHIP = {
     'purchase_date': date.today()
 }
 
+TEST_TOOL = {
+    'barcode': 135792468012,
+    'category': 'hammer',
+    'shareable': True,
+    'name': 'Ball Peen Hammer',
+    'description': 'Bro I don\'t know, its a hammer.'
+}
+
 TEST_USER = {
     'first_name': 'Johnny',
     'last_name': 'Test',
@@ -35,6 +43,19 @@ def insert_test_ownership():
         INSERT INTO ts_test_catalog.ts_ownership (username, barcode, purchase_price, purchase_date) 
         VALUES (%s, %s, %s, %s)
     """, (tuple(TEST_OWNERSHIP.values())))
+
+
+def fetch_test_tool():
+    return fetch_one("""
+        SELECT * FROM ts_test_catalog.ts_tool WHERE barcode = %s
+    """, (str(TEST_TOOL['barcode']),))
+
+
+def insert_test_tool():
+    commit("""
+        INSERT INTO ts_test_catalog.ts_tool (barcode, category, shareable, name, description) 
+        VALUES (%s, %s, %s, %s, %s) 
+    """, (tuple(TEST_TOOL.values())))
 
 
 def fetch_test_user():

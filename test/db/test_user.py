@@ -43,8 +43,8 @@ class TestUser(TestCase):
 
         updated_user = fetch_test_user()
 
-        self.assertEqual(updated_user['first_name'], self.test_params['first_name'])
-        self.assertEqual(updated_user['last_name'], self.test_params['last_name'])
+        self.assertEqual(self.test_params['first_name'], updated_user['first_name'])
+        self.assertEqual(self.test_params['last_name'], updated_user['last_name'])
 
         assert_sql_count(test=self, sql="SELECT * FROM ts_test_catalog.ts_user", n=self.user_count)
 
