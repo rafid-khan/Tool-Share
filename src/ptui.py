@@ -3,6 +3,10 @@ import re
 import ptui_helper as helper
 import src.queries as sql
 from db.utils import connect, create_server
+#import api.tool as tools
+import api.ownership as ownership
+import api.user as user
+import api.auth as auth
 
 
 def log_in():
@@ -57,13 +61,11 @@ def log_in_menu(username):
 
         match choice2:
             case "1":
-                description, name = helper.add_tool()
-                if sql.add_tool(description, name, username):
-                    print("Successfully added a tool\n"
-                          "\tName: " + name + "\n"
-                                              "\tDescription: " + description + "\n")
-                else:
-                    print("Failed to add tool. Please try again.")
+                description, barcode, name = helper.add_tool()
+                #if tools.create_tool( barcode, barcode, None, name, description ):
+                    ###"\tDescription: " + description + "\n")
+                #else:
+                    #print("Failed to add tool. Please try again.")
             case "2":
                 barcode = helper.delete_tool()
                 if sql.delete_tool(barcode):
@@ -75,9 +77,9 @@ def log_in_menu(username):
                 barcode, edit_string, what_to_edit = helper.edit_tool()
                 if sql.edit_tool(edit_string, what_to_edit):
                     print("Successfully edited a tool\n"
-                          "\tBarcode: " + barcode + "\n"
-                                                    "\tName or Description: " + what_to_edit + "\n"
-                                                                                               "\tChange: " + edit_string + "\n")
+                    + "\tBarcode: " + barcode + "\n"
+                    + "\tName or Description: " + what_to_edit + "\n"
+                    + "\tChange: " + edit_string + "\n")
                 else:
                     print("Failed to edit tool. Please try again.")
             case "4":

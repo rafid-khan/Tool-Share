@@ -1,4 +1,4 @@
-from db.tool import fetch_tool, fetch_all_tools, fetch_available_tools, insert_tool, update_tool, delete_tool
+from ..db.tool import fetch_tool, fetch_all_tools, fetch_available_tools, insert_tool, update_tool, delete_tool
 
 
 def get_tool(barcode):

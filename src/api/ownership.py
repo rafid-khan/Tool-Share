@@ -1,4 +1,4 @@
-from db.ownership import insert_ownership, delete_ownership
+from ..db.ownership import insert_ownership, delete_ownership
 
 
 def create_ownership(username, barcode, purchase_price, purchase_date):

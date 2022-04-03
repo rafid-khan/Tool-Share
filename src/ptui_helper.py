@@ -29,8 +29,9 @@ def read_name():
 def add_tool():
     name = read_name()
     description = read_description()
+    purchase_price = input("\tPlease enter how much this tool cost: (#.##) ")
 
-    return description, name
+    return name, description, purchase_price
 
 
 def delete_tool():

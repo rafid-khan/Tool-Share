@@ -1,4 +1,4 @@
-from db.ownership import fetch_ownership
+from ..db.ownership import fetch_ownership
 
 
 def get_user_tools(username):
