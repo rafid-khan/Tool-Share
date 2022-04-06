@@ -1,4 +1,11 @@
 from tkinter import *
+import tkinter.font as font
+
+type_options = [
+    "All",
+    "Your requests",
+    "Other's requests"
+]
 
 
 search_options = [
@@ -9,38 +16,101 @@ search_options = [
 ]
 
 
-def get_full_catalog_pane(root, frame2):
-    root.title("Tools - Full Catalog")
+def get_user_request_pane(root, frame2):
+    root.title("Tools - Request In/Out box")
 
-    pane = PanedWindow(frame2, width=1400, height=596, bg='#5D460E')
+    pane = PanedWindow(frame2, width=1400, height=596, bg='#755c36')
 
     # The search box initialization
-    search_pane = PanedWindow(pane, width=1400, height=596, bg='#5D460E')
+    search_pane = PanedWindow(pane, width=1400, height=596, bg='#755c36')
 
-    search_label = Label(search_pane, height=3, text="Search by: ", bg='#5D460E')
-    search_label.grid(column=0, row=0)
+    type_clicked = StringVar()
+    type_clicked.set(type_options[0])
+    type_of_tool_dropdown = OptionMenu(search_pane, type_clicked, *type_options)
+    type_of_tool_dropdown.grid(column=0, row=0, padx=(0, 25))
+
+    search_label = Label(search_pane, height=3, text="Search by: ", bg='#755c36')
+    search_label.grid(column=1, row=0)
 
     search_clicked = StringVar()
     search_clicked.set(search_options[0])
     search_by_dropdown = OptionMenu(search_pane, search_clicked, *search_options)
-    search_by_dropdown.grid(column=1, row=0, padx=5)
+    search_by_dropdown.grid(column=2, row=0, padx=5)
 
     search_box = Text(search_pane, width=50, height=1, bg='gray75', yscrollcommand=False)
-    search_box.grid(column=2, row=0)
+    search_box.grid(column=3, row=0)
 
     search_button = Button(search_pane, height=1, width=10, text="Search",
-                           command=lambda: search_database(search_by_dropdown))
+                           command=lambda: search_database(type_clicked, search_clicked, search_box))
     search_button.grid(column=4, row=0, padx=(5, 10))
 
     search_pane.pack(padx=(110, 110))
 
     # The text field initialization
 
-    text_box = Text(pane, height=32, width=140, bg='gray75', yscrollcommand=True)
-    text_box.pack(padx=140, pady=(12, 11))
+    bottom_pane = PanedWindow(pane, width=1400, height=500, bg='white')
 
+    search_pane = PanedWindow(bottom_pane, width=700, height=500, bg='white')
+
+    text_box = Text(search_pane, height=32, width=70, bg='gray75', yscrollcommand=True, state='normal')
+    text_box.pack(expand=True)
+
+    search_pane.grid(column=0, row=0, padx=156, pady=(11, 10))
+
+    accept_request_pane = PanedWindow(bottom_pane, width=700, height=500, bg='white')
+
+    initialize_request_pane(accept_request_pane)
+
+    accept_request_pane.grid(column=1, row=0, padx=(0, 186))
+
+    bottom_pane.pack()
     return pane
 
 
-def search_database(search_by_dropdown):
-    pass
+accept_options = [
+    "accept",
+    "reject"
+]
+
+
+def initialize_request_pane(accept_request_pane):
+    label_font = font.Font(size=18)
+    # Add a tool section
+    request_label = Label(accept_request_pane, text="Handle a request", bg='white', font=label_font)
+    request_label.grid(column=1, row=0)
+    requestID_label = Label(accept_request_pane, text="Request ID: ", bg='white')
+    requestID_label.grid(column=0, row=1, padx=5, pady=(10, 0))
+    requestID_text = Text(accept_request_pane, width=20, height=1, bg='white')
+    requestID_text.grid(column=1, row=1, pady=(10, 0))
+
+    accept_label = Label(accept_request_pane, text="accept/reject: ", bg='white')
+    accept_label.grid(column=0, row=2, padx=5, pady=(10, 0))
+    accept_clicked = StringVar()
+    accept_clicked.set("accept")
+    accept_option = OptionMenu(accept_request_pane, accept_clicked, *accept_options)
+    accept_option.grid(column=1, row=2, pady=(10, 0))
+
+    accept_request_button = Button(accept_request_pane,
+                                   text="Submit",
+                                   command=lambda: handle_request(requestID_text, accept_clicked))
+    accept_request_button.grid(column=2, row=2, pady=(10, 0))
+
+
+def handle_request(requestID_text, accept_clicked):
+    if accept_clicked.get() == "accept":
+        print("accepted")
+        print(requestID_text.get("1.0",END))
+    elif accept_clicked.get() == "reject":
+        print("rejected")
+        print(requestID_text.get("1.0", END))
+    else:
+        print("error with request")
+        print(requestID_text.get("1.0", END))
+
+
+def search_database(type_of_tool_dropdown, search_by_dropdown, search_box):
+    print(type_of_tool_dropdown.get())
+    print(search_by_dropdown.get())
+    print(search_box.get("1.0", END))
+
+    return

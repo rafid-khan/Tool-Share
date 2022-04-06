@@ -2,12 +2,11 @@ import tkinter as tk
 from tkinter import *
 import tkinter.font as font
 from PIL import ImageTk, Image
-from index import build_sign_in_pane
 import sign_in
 import user_catalog as uc
 import full_catalog as fc
 import view_requests as vr
-
+import dashboard as dash
 
 
 def main():
@@ -18,9 +17,9 @@ def main():
     img_resize = Image.open("images/Logo.png").resize((100, 100))
     img = ImageTk.PhotoImage(img_resize)
 
-    frame1 = Frame(root, width=1400, height=105, bg='#5D460E')
+    frame1 = Frame(root, width=1400, height=105, bg='#544227')
     frame2 = Frame(root, width=1400, height=596)
-    pane = PanedWindow(frame2, width=1400, height=596, bg='green')
+    pane = dash.get_dashboard_pane(root, frame2)
     pane.pack()
 
     initialize_header(frame1, img, frame2, root)
@@ -66,15 +65,6 @@ def initialize_header(frame1, logo, frame2, root):
                                  command=lambda: full_catalog(root, frame2))
     full_catalog_button.grid(column=3, row=0)
 
-    make_request_button = Button(header_panel,
-                                 height=3,
-                                 width=15,
-                                 text="Make a Request",
-                                 font=myFont,
-                                 bg='white',
-                                 command=lambda: request_tool(root, frame2))
-    make_request_button.grid(column=4, row=0)
-
     view_request_button = Button(header_panel,
                                  height=3,
                                  width=20,
@@ -82,7 +72,7 @@ def initialize_header(frame1, logo, frame2, root):
                                  font=myFont,
                                  bg='white',
                                  command=lambda: view_request(root, frame2))
-    view_request_button.grid(column=5, row=0)
+    view_request_button.grid(column=4, row=0)
 
     sign_in_out_button = Button(header_panel,
                                 height=3,
@@ -91,7 +81,7 @@ def initialize_header(frame1, logo, frame2, root):
                                 font=myFont,
                                 bg='white',
                                 command=lambda: sign_in_out(root))
-    sign_in_out_button.grid(column=6, row=0, padx=(440, 0))
+    sign_in_out_button.grid(column=5, row=0, padx=(575, 5))
 
     header_panel.pack()
 
@@ -106,7 +96,7 @@ def dashboard(root, frame2):
     prev_pane = frame2.winfo_children()
 
     prev_pane[len(prev_pane) - 1].pack_forget()
-    pane = PanedWindow(frame2, width=1400, height=596, bg='purple')
+    pane = dash.get_dashboard_pane(root, frame2)
     pane.pack()
     frame2.pack()
     return
@@ -136,17 +126,7 @@ def view_request(root, frame2):
     prev_pane = frame2.winfo_children()
 
     prev_pane[len(prev_pane) - 1].pack_forget()
-    pane = vr.get_full_catalog_pane(root, frame2)
-    pane.pack()
-    frame2.pack()
-    return
-
-
-def request_tool(root, frame2):
-    prev_pane = frame2.winfo_children()
-
-    prev_pane[len(prev_pane) - 1].pack_forget()
-    pane = PanedWindow(frame2, width=1400, height=596, bg='yellow')
+    pane = vr.get_user_request_pane(root, frame2)
     pane.pack()
     frame2.pack()
     return

@@ -8,15 +8,17 @@ import header
 global is_signing_in
 
 
-def sign_in_pane(frame2, right_pane, root):
+def sign_in_pane(frame2, right_pane, root, *args):
     global is_signing_in
-    if (is_signing_in):
 
-        # Verify user's username and password are valid then go to Dashboard
+    if (is_signing_in):
+        username = frame2.winfo_children()[0].winfo_children()[0].winfo_children()[1].get("1.0", END)
+        print(username)
+        password = frame2.winfo_children()[0].winfo_children()[1].winfo_children()[1].get("1.0", END)
+        print(password)
+
         root.destroy()
         header.main()
-
-        pass
     else:
         prev_pane = frame2.winfo_children()
         prev_pane[len(prev_pane) - 1].pack_forget()
@@ -24,24 +26,6 @@ def sign_in_pane(frame2, right_pane, root):
         pane.pack()
         frame2.pack()
         right_pane.pack(padx=215, pady=283)
-    return
-
-
-def create_account_pane(frame2, right_pane, root):
-    global is_signing_in
-    if (not is_signing_in):
-
-        # Verify the users account was added then go to the Dashboard
-        root.destroy()
-        header.main()
-        pass
-    else:
-        prev_pane = frame2.winfo_children()
-        prev_pane[len(prev_pane) - 1].pack_forget()
-        pane = get_create_account_pane(frame2)
-        pane.pack()
-        frame2.pack()
-        right_pane.pack(padx=210, pady=236)
     return
 
 
@@ -56,7 +40,6 @@ def get_sign_in_pane(frame2):
     username_label.grid(column=0, row=0, padx=5)
     username_text = Text(username_pane, width=20, height=1, bg='white')
     username_text.grid(column=1, row=0)
-
     username_pane.pack(pady=10)
 
     password_pane = PanedWindow(pane, width=400, height=50, bg='white')
@@ -68,6 +51,34 @@ def get_sign_in_pane(frame2):
     password_pane.pack(pady=10)
 
     return pane
+
+
+def create_account_pane(frame2, right_pane, root, *args):
+    global is_signing_in
+
+    if (not is_signing_in):
+        first_name = frame2.winfo_children()[1].winfo_children()[1].get("1.0", END)
+        print(first_name)
+        first_name = frame2.winfo_children()[1].winfo_children()[3].get("1.0", END)
+        print(first_name)
+        username = frame2.winfo_children()[1].winfo_children()[5].get("1.0", END)
+        print(username)
+        password = frame2.winfo_children()[1].winfo_children()[7].get("1.0", END)
+        print(password)
+        confirm_password = frame2.winfo_children()[1].winfo_children()[9].get("1.0", END)
+        print(confirm_password)
+        # Verify the users account was added then go to the Dashboard
+        root.destroy()
+        header.main()
+        pass
+    else:
+        prev_pane = frame2.winfo_children()
+        prev_pane[len(prev_pane) - 1].pack_forget()
+        pane = get_create_account_pane(frame2)
+        pane.pack()
+        frame2.pack()
+        right_pane.pack(padx=210, pady=236)
+    return
 
 
 def get_create_account_pane(frame2):
