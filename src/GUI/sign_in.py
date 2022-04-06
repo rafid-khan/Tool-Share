@@ -76,42 +76,30 @@ def get_create_account_pane(frame2):
 
     pane = PanedWindow(frame2, width=500, height=450, bg='white')
 
-    # name_pane = PanedWindow(pane, width=400, height=50, bg='white')
-
     first_name_label = Label(pane, text="First Name: ", bg='white')
-    first_name_label.grid(column=0, row=0, padx=5)
+    first_name_label.grid(column=0, row=0, padx=5, pady=(0,10))
     first_name_text = Text(pane, width=20, height=1, bg='white')
     first_name_text.grid(column=1, row=0, pady=(0,10))
+
     last_name_label = Label(pane, text="Last Name: ", bg='white')
-    last_name_label.grid(column=0, row=1, padx=5)
+    last_name_label.grid(column=0, row=1, padx=5, pady=10)
     last_name_text = Text(pane, width=20, height=1, bg='white')
     last_name_text.grid(column=1, row=1, pady=10)
 
-    # name_pane.pack(pady=10)
-
-    # username_pane = PanedWindow(pane, width=400, height=50, bg='white')
     username_label = Label(pane, text="Username: ", bg='white')
-    username_label.grid(column=0, row=2, padx=5)
+    username_label.grid(column=0, row=2, padx=5, pady=10)
     username_text = Text(pane, width=20, height=1, bg='white')
     username_text.grid(column=1, row=2, pady=10)
 
-    # username_pane.pack(pady=10)
-
-    # password_pane = PanedWindow(pane, width=400, height=50, bg='white')
     password_label = Label(pane, text="Enter a Password: ", bg='white')
-    password_label.grid(column=0, row=3, padx=5)
+    password_label.grid(column=0, row=3, padx=5, pady=10)
     password_text = Text(pane, width=20, height=1, bg='white')
     password_text.grid(column=1, row=3, pady=10)
 
-    # password_pane.pack(pady=10)
-
-    # confirm_password_pane = PanedWindow(pane, width=400, height=50, bg='white')
     confirm_password_label = Label(pane, text="Confirm password: ", bg='white')
-    confirm_password_label.grid(column=0, row=4, padx=5)
+    confirm_password_label.grid(column=0, row=4, padx=5, pady=(10, 0))
     confirm_password_text = Text(pane, width=20, height=1, bg='white')
     confirm_password_text.grid(column=1, row=4, pady=(10, 0))
-
-    # confirm_password_pane.pack(pady=10)
 
     return pane
 
@@ -142,7 +130,6 @@ def main():
     right_pane = PanedWindow(frame2, width=500, height=500, bg='white')
     info_pane = PanedWindow(right_pane, width=500, height=450, bg='white')
     info_pane.pack()
-
 
     info_child = get_sign_in_pane(info_pane)
 

@@ -5,20 +5,15 @@ from PIL import ImageTk, Image
 from index import build_sign_in_pane
 import sign_in
 import user_catalog as uc
+import full_catalog as fc
+import view_requests as vr
 
-
-
-
-global widget_index
 
 
 def main():
     root = tk.Tk()
     root.title('Tools - Home')
     root.geometry("1400x700")
-
-    global widget_index
-    widget_index = 0
 
     img_resize = Image.open("images/Logo.png").resize((100, 100))
     img = ImageTk.PhotoImage(img_resize)
@@ -50,7 +45,7 @@ def initialize_header(frame1, logo, frame2, root):
                               text="Dashboard",
                               font=myFont,
                               bg='white',
-                              command=lambda: dashboard(frame2))
+                              command=lambda: dashboard(root, frame2))
     dashboard_button.grid(column=1, row=0, padx=(15,0))
 
     user_catalog_button = Button(header_panel,
@@ -59,7 +54,7 @@ def initialize_header(frame1, logo, frame2, root):
                                  text="Your Catalog",
                                  font=myFont,
                                  bg='white',
-                                 command=lambda: user_catalog(frame2))
+                                 command=lambda: user_catalog(root, frame2))
     user_catalog_button.grid(column=2, row=0)
 
     full_catalog_button = Button(header_panel,
@@ -68,7 +63,7 @@ def initialize_header(frame1, logo, frame2, root):
                                  text="Full Catalog",
                                  font=myFont,
                                  bg='white',
-                                 command=lambda: full_catalog(frame2))
+                                 command=lambda: full_catalog(root, frame2))
     full_catalog_button.grid(column=3, row=0)
 
     make_request_button = Button(header_panel,
@@ -77,7 +72,7 @@ def initialize_header(frame1, logo, frame2, root):
                                  text="Make a Request",
                                  font=myFont,
                                  bg='white',
-                                 command=lambda: request_tool(frame2))
+                                 command=lambda: request_tool(root, frame2))
     make_request_button.grid(column=4, row=0)
 
     view_request_button = Button(header_panel,
@@ -86,7 +81,7 @@ def initialize_header(frame1, logo, frame2, root):
                                  text="View your Requests",
                                  font=myFont,
                                  bg='white',
-                                 command=lambda: view_request(frame2))
+                                 command=lambda: view_request(root, frame2))
     view_request_button.grid(column=5, row=0)
 
     sign_in_out_button = Button(header_panel,
@@ -107,7 +102,7 @@ def sign_in_out(root):
     return
 
 
-def dashboard(frame2):
+def dashboard(root, frame2):
     prev_pane = frame2.winfo_children()
 
     prev_pane[len(prev_pane) - 1].pack_forget()
@@ -117,37 +112,37 @@ def dashboard(frame2):
     return
 
 
-def full_catalog(frame2):
+def full_catalog(root, frame2):
     prev_pane = frame2.winfo_children()
 
     prev_pane[len(prev_pane) - 1].pack_forget()
-    pane = PanedWindow(frame2, width=1400, height=596, bg='brown')
+    pane = fc.get_full_catalog_pane(root, frame2)
     pane.pack()
     frame2.pack()
     return
 
 
-def user_catalog(frame2):
+def user_catalog(root, frame2):
     prev_pane = frame2.winfo_children()
 
     prev_pane[len(prev_pane) - 1].pack_forget()
-    pane = uc.get_user_catalog_pane(frame2)
+    pane = uc.get_user_catalog_pane(root, frame2)
     pane.pack()
     frame2.pack()
     return
 
 
-def view_request(frame2):
+def view_request(root, frame2):
     prev_pane = frame2.winfo_children()
 
     prev_pane[len(prev_pane) - 1].pack_forget()
-    pane = PanedWindow(frame2, width=1400, height=596, bg='orange')
+    pane = vr.get_full_catalog_pane(root, frame2)
     pane.pack()
     frame2.pack()
     return
 
 
-def request_tool(frame2):
+def request_tool(root, frame2):
     prev_pane = frame2.winfo_children()
 
     prev_pane[len(prev_pane) - 1].pack_forget()
