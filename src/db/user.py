@@ -1,34 +1,64 @@
+
 from psycopg2.sql import Identifier, SQL
 
 from .utils import fetch_many, fetch_one, commit
 
 
-def fetch_user(id):
+def fetch_user(username):
     return fetch_one("""
-        SELECT * FROM ts_user WHERE user_id = %s 
-    """, (id,))
+        SELECT * FROM p320_24.user WHERE username = %s 
+    """, (username,))
 
 
 def fetch_all_users():
     return fetch_many("""
-        SELECT * FROM ts_user
+        SELECT * FROM p320_24.user
     """)
 
 
 def insert_user(**kwargs):
     commit("""
-        INSERT INTO ts_user (first_name, last_name, username, password, email) VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO p320_24.user (first_name, last_name, username, password) VALUES (%s, %s, %s, %s)
     """, (tuple(kwargs.values())))
 
 
-def update_user(id, **kwargs):
-    query = SQL("UPDATE ts_user SET ({}) = %s WHERE user_id = %s") \
+def insert_email(**kwargs):
+    commit("""
+        INSERT INTO p320_24.email (username, email) VALUES (%s, %s)
+    """, (tuple(kwargs.values())))
+
+
+def update_user(username, **kwargs):
+    query = SQL("UPDATE p320_24.user SET ({}) = %s WHERE username = %s") \
         .format(SQL(', ').join(map(Identifier, list(kwargs.keys()))))
 
-    commit(query, (tuple(kwargs.values()), id))
+    commit(query, (tuple(kwargs.values()), username))
 
 
-def delete_user(id):
+def update_email(username, **kwargs):
+    query = SQL("UPDATE p320_24.email SET ({}) = %s WHERE username = %s") \
+        .format(SQL(', ').join(map(Identifier, list(kwargs.keys()))))
+
+    commit(query, (tuple(kwargs.values()), username))
+
+
+def delete_user(username):
     commit("""
-        DELETE FROM ts_user WHERE user_id = %s
-    """, (id,))
+        DELETE FROM p320_24.user WHERE username = %s
+    """, (username,))
+
+
+def log_in(username, password):
+    correct_password = fetch_one("""
+        SELECT password FROM p320_24.user WHERE username = %s
+    """, (username,))
+
+    if correct_password == password:
+        commit("""
+            UPDATE p320_24.user SET last_date_accessed = now() WHERE username = %s 
+        """, (username,))
+        return True
+    else:
+        return False
+
+
