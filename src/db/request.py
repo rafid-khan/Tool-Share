@@ -1,3 +1,5 @@
+import datetime
+
 from psycopg2.sql import SQL, Identifier
 
 from .utils import fetch_one, fetch_many, commit
@@ -16,7 +18,6 @@ def create_request(**kwargs):
         """, (tuple(kwargs.values())))
 
 
-# TODO
 def get_users_requests_received(username):
     return fetch_many("""
         SELECT username = %s FROM p320_24.ownership WHERE barcode 
@@ -36,23 +37,30 @@ def handle_requests(is_accepted, request_id):
     pass
 
 
-def fetch_lent_tools():
+def fetch_lent_tools(**kwargs):
     return fetch_many("""
-        SELECT barcode FROM p320_24.request WHERE request_date < (request_date + borrow_period)
-    """)
+        SELECT barcode FROM p320_24.request WHERE (p320_24.ownership.username = %s) 
+        && request_date < (request_date + borrow_period)
+    """, (tuple(kwargs.values())))
 
 
-# TODO
-def fetch_borrowed_tools():
-    pass
+def fetch_borrowed_tools(**kwargs):
+    return fetch_many("""
+        SELECT name FROM p320_24.tool WHERE (p320_24.ownership.username = %s) && 
+        holder != p320_24.ownership.username
+    """, (tuple(kwargs.values())))
 
 
-# TODO
-def fetch_overdue_tools():
-    pass
+def fetch_overdue_tools(**kwargs):
+    return fetch_many("""
+        SELECT barcode FROM p320_24.request WHERE (request_date + borrow_period) < now() && 
+        (p320_24.ownership.username = %s)
+    """, (tuple(kwargs.values())))
 
 
-# TODO
-def get_available_tools():
-    pass
+def fetch_available_tools(**kwargs):
+    return fetch_many("""
+        SELECT name FROM p320_24.tool WHERE holder == p320_24.ownership.username 
+        && tool.shareable = TRUE && (p320_24.ownership.username = %s)
+    """, (tuple(kwargs.values())))
 
