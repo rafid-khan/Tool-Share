@@ -28,7 +28,7 @@ def create_account():
     while not re.search(".+@.+[.].{3}$", email):
         email = input("\tPlease enter a valid email address (jsmith@example.com): ")
 
-    if sql.create_account(username, password, first_name, last_name, email):
+    if sql.create_account(email):
         print("***Account Successfully created***\n")
         sql.log_in(username, password)
         print("You are currently logged in!\n")
@@ -126,7 +126,7 @@ def log_in_menu(username):
                         print(tool)
             case "9":
                 barcode, borrow_period = helper.request_borrow()
-                tool_list = sql.request_borrow(barcode, borrow_period, username)
+                tool_list = sql.request_borrow(username)
                 if tool_list is None:
                     print("Error could not find tools! Please try again.")
                 else:
