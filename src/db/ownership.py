@@ -5,20 +5,20 @@ from .utils import fetch_one, commit
 
 def fetch_ownership(user, code=None):
     return fetch_one("""
-        SELECT * FROM ts_ownership WHERE username = %s AND barcode = %s
+        SELECT * FROM p320_24.ownership WHERE username = %s AND barcode = %s
     """, (user, code)) if code else fetch_one("""
-        SELECT * FROM ts_ownership WHERE username = %s
+        SELECT * FROM p320_24.ownership WHERE username = %s
     """, (user,))
 
 
 def insert_ownership(**kwargs):
     commit("""
-        INSERT INTO ts_ownership (username, barcode, purchase_price, purchase_date) VALUES (%s, %s, %s, %s)
+        INSERT INTO p320_24.ownership (username, barcode, purchase_price, purchase_date) VALUES (%s, %s, %s, %s)
     """, (tuple(kwargs.values())))
 
 
 def update_ownership(user, code, **kwargs):
-    query = SQL("UPDATE ts_ownership SET ({}) = %s WHERE username = %s AND barcode = %s") \
+    query = SQL("UPDATE p320_24.ownership SET ({}) = %s WHERE username = %s AND barcode = %s") \
         .format(SQL(', ').join(map(Identifier, list(kwargs.keys()))))
 
     commit(query, (tuple(kwargs.values()), user, code))
@@ -26,5 +26,5 @@ def update_ownership(user, code, **kwargs):
 
 def delete_ownership(user, code):
     commit("""
-        DELETE FROM ts_ownership WHERE username = %s AND barcode = %s
+        DELETE FROM p320_24.ownership WHERE username = %s AND barcode = %s
     """, (user, code))
