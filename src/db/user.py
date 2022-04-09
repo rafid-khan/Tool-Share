@@ -4,12 +4,14 @@ from psycopg2.sql import Identifier, SQL
 from .utils import fetch_many, fetch_one, commit
 
 
+# WORKS
 def fetch_user(username):
     return fetch_one("""
         SELECT * FROM p320_24.user WHERE username = %s 
     """, (username,))
 
 
+# WORKS
 def fetch_all_users():
     return fetch_many("""
         SELECT * FROM p320_24.user
@@ -48,6 +50,7 @@ def delete_user(username):
     """, (username,))
 
 
+# QUERY WORKS
 def log_in(username, password):
     correct_password = fetch_one("""
         SELECT password FROM p320_24.user WHERE username = %s
