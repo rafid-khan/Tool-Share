@@ -56,32 +56,67 @@ def fetch_available_tools():
     """)
 
 
-# NEEDS TESTING NO DATA W/ BORROWING
+# WORKS
 def fetch_users_lent_tools(username):
     return fetch_many("""
-        SELECT name, barcode FROM p320_24.tool 
-        WHERE (p320_24.ownership.username = %s) AND 
-        holder != p320_24.ownership.username
-        ORDER BY p320_24.request.request_date  
-    """, (username,))
-
-
-# NEEDS TESTING NO DATA W/ BORROWING
-def fetch_user_borrowed_tools(username):
-    return fetch_many("""
-        SELECT * FROM p320_24.tool WHERE (holder = %s) 
-        && p320_24.ownership.username != %s 
+        SELECT p320_24.tool.barcode, p320_24.tool.name,
+        p320_24.request.request_date, p320_24.tool.holder
+        FROM p320_24.tool
+        INNER JOIN p320_24.ownership
+        ON p320_24.tool.barcode = p320_24.ownership.barcode
+        AND p320_24.tool.holder != p320_24.ownership.username
+        AND p320_24.ownership.username = %s
+        INNER JOIN p320_24.request
+        ON p320_24.tool.barcode = p320_24.request.barcode
         ORDER BY p320_24.request.request_date
     """, (username,))
 
 
-# NEEDS TESTING NO DATA W/ BORROWING
-def fetch_overdue_tools(**kwargs):
+# WORKS
+def fetch_user_borrowed_tools(username):
     return fetch_many("""
-        SELECT barcode FROM p320_24.request 
-        WHERE (request_date + borrow_period) < now() AND 
-        (p320_24.ownership.username = %s)
-    """, (tuple(kwargs.values())))
+        SELECT p320_24.tool.barcode, p320_24.tool.name, 
+        p320_24.request.request_date, p320_24.ownership.username
+        FROM p320_24.tool
+        INNER JOIN p320_24.ownership
+        ON p320_24.tool.barcode = p320_24.ownership.barcode
+        AND p320_24.tool.holder != p320_24.ownership.username
+        AND p320_24.tool.holder = %s
+        INNER JOIN p320_24.request
+        ON p320_24.tool.barcode = p320_24.request.barcode
+        ORDER BY p320_24.request.request_date
+    """, (username,))
+
+
+# LGTM
+def fetch_overdue_lent_tools(username):
+    return fetch_many("""
+        SELECT p320_24.tool.barcode, p320_24.tool.name,
+        p320_24.request.request_date, p320_24.tool.holder
+        FROM p320_24.tool
+        INNER JOIN p320_24.ownership
+        ON p320_24.tool.barcode = p320_24.ownership.barcode
+        AND p320_24.tool.holder != p320_24.ownership.username
+        AND p320_24.ownership.username = %s
+        INNER JOIN p320_24.request
+        ON p320_24.tool.barcode = p320_24.request.barcode
+        ORDER BY p320_24.request.request_date
+        WHERE (request_date + borrow_period) > now()
+        AND status = 'Accepted'
+    """, (username,))
+
+
+# LGTM
+def fetch_overdue_borrowed_tools(username):
+    return fetch_many("""
+        SELECT *
+        FROM p320_24.request
+        INNER JOIN p320_24.ownership
+        ON p320_24.request.barcode = p320_24.ownership.barcode
+        WHERE (request_date + borrow_period) < now()
+        AND status = 'Accepted'
+        AND p320_24.ownership.username = %s
+    """, (username,))
 
 
 # TODO
