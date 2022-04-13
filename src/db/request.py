@@ -5,12 +5,7 @@ from psycopg2.sql import SQL, Identifier
 from .utils import fetch_one, fetch_many, commit
 
 
-def fetch_users_borrowed_tools(username):
-    return fetch_many("""
-        SELECT barcode FROM p320_24.request WHERE username = %s AND status = TRUE
-    """, (username,))
-
-
+# WORKS
 def create_request(**kwargs):
     commit("""
             INSERT INTO p320_24.request (request_id, username, barcode, status, borrow_period, request_date) 
@@ -18,49 +13,59 @@ def create_request(**kwargs):
         """, (tuple(kwargs.values())))
 
 
+# WORKS
 def get_users_requests_received(username):
     return fetch_many("""
-        SELECT username = %s FROM p320_24.ownership WHERE barcode 
-        IN (SELECT barcode FROM p320_24.request)
+        SELECT * FROM p320_24.request WHERE barcode IN
+        (SELECT barcode FROM p320_24.ownership WHERE p320_24.ownership.username = %s)
     """, (username,))
 
 
+# WORKS
 def get_users_requests_made(**kwargs):
     return fetch_many("""
-        SELECT request_id, barcode, borrow_period, request_date, status 
-        FROM p320_24.request WHERE username = %s 
+        SELECT * FROM p320_24.request WHERE username = %s 
     """, (tuple(kwargs.values())))
 
 
-# TODO
 def handle_requests(is_accepted, request_id):
-    pass
+    if is_accepted:
+        commit("""
+            UPDATE p320_24.request SET status = 'ACCEPTED' WHERE request_id = %s 
+        """, (request_id,))
+
+        commit("""
+            UPDATE p320_24.tool SET shareable = False WHERE barcode IN 
+            (SELECT barcode FROM p320_24.request WHERE request_id = %s)
+        """, (request_id,))
+
+        commit("""
+            UPDATE p320_24.tool
+            SET holder = p320_24.request.username
+            FROM p320_24.request
+            WHERE p320_24.request.request_id = %s
+        """, (request_id,))
+
+    else:
+        commit("""
+            UPDATE p320_24.request SET status = 'DENIED' WHERE request_id = %s
+        """, (request_id,))
 
 
-def fetch_lent_tools(**kwargs):
-    return fetch_many("""
-        SELECT barcode FROM p320_24.request WHERE (p320_24.ownership.username = %s) 
-        && request_date < (request_date + borrow_period)
-    """, (tuple(kwargs.values())))
+def return_tool(barcode):
+    commit("""
+        UPDATE p320_24.tool SET holder = p320_24.ownership.username 
+        WHERE p320_24.ownership.username IN (SELECT username FROM p320_24.ownership 
+        WHERE p320_24.ownership.barcode = %s)
+    """, (barcode,))
+
+    commit("""
+        UPDATE p320_24.tool SET shareable = True WHERE barcode = %s 
+    """, (barcode,))
+
+    commit("""
+        UPDATE p320_24.request SET status = 'Finished' WHERE barcode = %s
+    """)
 
 
-def fetch_borrowed_tools(**kwargs):
-    return fetch_many("""
-        SELECT name FROM p320_24.tool WHERE (p320_24.ownership.username = %s) && 
-        holder != p320_24.ownership.username
-    """, (tuple(kwargs.values())))
-
-
-def fetch_overdue_tools(**kwargs):
-    return fetch_many("""
-        SELECT barcode FROM p320_24.request WHERE (request_date + borrow_period) < now() && 
-        (p320_24.ownership.username = %s)
-    """, (tuple(kwargs.values())))
-
-
-def fetch_available_tools(**kwargs):
-    return fetch_many("""
-        SELECT name FROM p320_24.tool WHERE holder == p320_24.ownership.username 
-        && tool.shareable = TRUE && (p320_24.ownership.username = %s)
-    """, (tuple(kwargs.values())))
 

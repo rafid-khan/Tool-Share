@@ -3,6 +3,7 @@ from psycopg2.sql import SQL, Identifier
 from .utils import fetch_one, commit
 
 
+# ALL FUNCTIONS SHOULD WORK
 def fetch_ownership(user, code=None):
     return fetch_one("""
         SELECT * FROM p320_24.ownership WHERE username = %s AND barcode = %s
