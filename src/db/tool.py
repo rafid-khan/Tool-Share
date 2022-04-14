@@ -171,18 +171,22 @@ def fetch_overdue_borrowed_tools(username):
 
 def delete_tool(barcode):
     commit("""
-        DELETE  
+        DELETE 
         FROM p320_24.tool
-        USING p20_24.ownership
+        INNER JOIN p320.ownership
+        ON p320_24.tool.barcode = p320_24.ownership.barcode
         WHERE p320_24.tool.barcode = p320_24.ownership.barcode
         AND p320_24.tool.holder = p320_24.ownership.username
-        AND p320_24.tool.barcode = %s;
-        
+    """, (barcode,))
+
+    commit("""
         DELETE
         FROM p320_24.ownership
-        WHERE barcode = %s;
-        
+        WHERE barcode = %s
+    """, (barcode,))
+
+    commit("""
         DELETE
-        FROM p320_24.request
+        FROM p320_24.requests
         WHERE barcode = %s
     """, (barcode,))
