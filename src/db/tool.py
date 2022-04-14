@@ -5,7 +5,6 @@ from .utils import fetch_many, fetch_one, commit
 from src.api.utils import SortType
 
 
-# WORKS
 def fetch_tool(code):
     return fetch_one("""
         SELECT p320_24.tool.*, p320_24.category.tag_name 
@@ -16,9 +15,7 @@ def fetch_tool(code):
     """, (code,))
 
 
-# WORKS
-# UPDATED SO THAT CATEGORY NAME IS RETRIEVED AS WELL
-def fetch_all_tools(sort: SortType):
+def fetch_all_tools(sort: SortType,):
     return fetch_many("""
         SELECT p320_24.tool.*, p320_24.category.tag_name 
         FROM p320_24.tool
@@ -35,15 +32,38 @@ def fetch_all_tools(sort: SortType):
     """)
 
 
-def search_all_tools_by_category(username):
-    pass
+def search_tool(identifier, keyword):
+    if identifier == "name":
+        commit("""
+           SELECT p320_24.tool.*, p320_24.category.tag_name
+           FROM p320_24.tool
+           INNER JOIN p320_24.category
+           ON p320_24.tool.barcode = p320_24.category.barcode
+           WHERE p320_24.tool.name LIKE ('%' + %s + '%')
+           ORDER BY p320_24.tool.name 
+        """, (keyword,))
+    elif identifier == "category":
+        commit("""
+           SELECT p320_24.tool.*, p320_24.category.tag_name
+           FROM p320_24.tool
+           INNER JOIN p320_24.category
+           ON p320_24.tool.barcode = p320_24.category.barcode
+           WHERE p320_24.category.tag_name LIKE ('%' + %s + '%')
+           ORDER BY p320_24.tool.name 
+        """, (keyword,))
+    elif identifier == "barcode":
+        commit("""
+           SELECT p320_24.tool.*, p320_24.category.tag_name
+           FROM p320_24.tool
+           INNER JOIN p320_24.category
+           ON p320_24.tool.barcode = p320_24.category.barcode
+           WHERE p320_24.tool.barcode LIKE ('%' + %s + '%')
+           ORDER BY p320_24.tool.name 
+        """, (keyword,))
+    else:
+        Exception(ValueError)
 
 
-def search_all_tools_by_name(username):
-    pass
-
-
-# WORKS
 def insert_tool(**kwargs):
     commit("""
         INSERT INTO p320_24.tool (barcode, category, shareable, name, description) 
@@ -58,7 +78,6 @@ def create_category(**kwargs):
     """, (tuple(kwargs.values())))
 
 
-# WORKS
 def update_tool(code, **kwargs):
     query = SQL("UPDATE p320_24.tool SET ({}) = %s WHERE barcode = %s") \
         .format(SQL(', ').join(map(Identifier, list(kwargs.keys()))))
@@ -66,7 +85,6 @@ def update_tool(code, **kwargs):
     commit(query, (tuple(kwargs.values()), code))
 
 
-# WORKS
 def view_user_tools(username):
     return fetch_many("""
         SELECT p320_24.tool.*, p320_24.category.tag_name, 
@@ -81,7 +99,6 @@ def view_user_tools(username):
     """, (username,))
 
 
-# WORKS
 def fetch_available_tools():
     return fetch_many("""
         SELECT p320_24.tool.*, p320_24.category.tag_name 
@@ -93,7 +110,6 @@ def fetch_available_tools():
     """)
 
 
-# WORKS
 def fetch_users_lent_tools(username):
     return fetch_many("""
         SELECT p320_24.tool.barcode, p320_24.tool.name,
@@ -112,7 +128,6 @@ def fetch_users_lent_tools(username):
     """, (username,))
 
 
-# WORKS
 def fetch_user_borrowed_tools(username):
     return fetch_many("""
         SELECT p320_24.tool.barcode, p320_24.tool.name, 
@@ -151,7 +166,6 @@ def fetch_overdue_lent_tools(username):
     """, (username,))
 
 
-# NEEDS TO BE UPDATED TO REFLECT CHANGES IN THE REQUEST TABLE
 def fetch_overdue_borrowed_tools(username):
     return fetch_many("""
         SELECT p320_24.tool.barcode, p320_24.tool.name,
@@ -171,22 +185,25 @@ def fetch_overdue_borrowed_tools(username):
 
 def delete_tool(barcode):
     commit("""
-        DELETE 
-        FROM p320_24.tool
-        INNER JOIN p320.ownership
-        ON p320_24.tool.barcode = p320_24.ownership.barcode
-        WHERE p320_24.tool.barcode = p320_24.ownership.barcode
-        AND p320_24.tool.holder = p320_24.ownership.username
+        DELETE
+        FROM p320_24.request
+        WHERE EXISTS 
+            (SELECT * 
+             FROM p320_24.tool
+             WHERE p320_24.request.barcode = p320_24.tool.barcode
+             AND p320_24.tool.barcode = %s)
+    """, (barcode,))
+
+    commit("""
+        DELETE
+        FROM p320_24.tool 
+        USING p320_24.ownership
+        WHERE p320_24.tool.barcode = %s
+        AND p320_24.tool.barcode = p320_24.ownership.barcode
     """, (barcode,))
 
     commit("""
         DELETE
         FROM p320_24.ownership
-        WHERE barcode = %s
-    """, (barcode,))
-
-    commit("""
-        DELETE
-        FROM p320_24.requests
         WHERE barcode = %s
     """, (barcode,))
