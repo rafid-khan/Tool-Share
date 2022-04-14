@@ -131,7 +131,6 @@ def fetch_user_borrowed_tools(username):
     """, (username,))
 
 
-# NEEDS TO BE UPDATED TO REFLECT CHANGES IN THE REQUEST TABLE
 def fetch_overdue_lent_tools(username):
     return fetch_many("""
         SELECT p320_24.tool.barcode, p320_24.tool.name,
@@ -170,12 +169,20 @@ def fetch_overdue_borrowed_tools(username):
     """, (username,))
 
 
-def delete_tool(code):
+def delete_tool(barcode):
     commit("""
-        DELETE *
+        DELETE  
         FROM p320_24.tool
-        INNER JOIN p320_24.ownership
-        On p320_24.tool barcode = p320_24.ownership.barcode 
-        WHERE barcode = %s
+        USING p20_24.ownership
+        WHERE p320_24.tool.barcode = p320_24.ownership.barcode
         AND p320_24.tool.holder = p320_24.ownership.username
-    """, (code,))
+        AND p320_24.tool.barcode = %s;
+        
+        DELETE
+        FROM p320_24.ownership
+        WHERE barcode = %s;
+        
+        DELETE
+        FROM p320_24.request
+        WHERE barcode = %s
+    """, (barcode,))
