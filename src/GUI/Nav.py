@@ -2,14 +2,17 @@ import tkinter as tk
 from tkinter import *
 import tkinter.font as font
 from PIL import ImageTk, Image
-import sign_in
-import user_catalog as uc
-import full_catalog as fc
-import view_requests as vr
-import dashboard as dash
+import GUI.sign_in as sign_in
+import GUI.user_catalog as uc
+import GUI.full_catalog as fc
+import GUI.view_requests as vr
+import GUI.dashboard as dash
+import src.GUI.profile as pf
+import GUI.global_variables as gbl_var
 
 
-def main():
+def main(passed_username):
+    gbl_var.set_username(passed_username)
     root = tk.Tk()
     root.title('Tools - Home')
     root.geometry("1400x700")
@@ -74,6 +77,15 @@ def initialize_header(frame1, logo, frame2, root):
                                  command=lambda: view_request(root, frame2))
     view_request_button.grid(column=4, row=0)
 
+    profile_button = Button(header_panel,
+                            height=3,
+                            width=10,
+                            text="Profile",
+                            font=myFont,
+                            bg='white',
+                            command=lambda: view_profile(root, frame2))
+    profile_button.grid(column=5, row=0)
+
     sign_in_out_button = Button(header_panel,
                                 height=3,
                                 width=15,
@@ -81,7 +93,7 @@ def initialize_header(frame1, logo, frame2, root):
                                 font=myFont,
                                 bg='white',
                                 command=lambda: sign_in_out(root))
-    sign_in_out_button.grid(column=5, row=0, padx=(575, 5))
+    sign_in_out_button.grid(column=6, row=0, padx=(475, 5))
 
     header_panel.pack()
 
@@ -122,6 +134,17 @@ def user_catalog(root, frame2):
     return
 
 
+def view_profile(root, frame2):
+    prev_pane = frame2.winfo_children()
+
+    prev_pane[len(prev_pane) - 1].pack_forget()
+    pane = pf.get_profile_pane(root, frame2)
+
+    pane.pack()
+    frame2.pack()
+    return
+
+
 def view_request(root, frame2):
     prev_pane = frame2.winfo_children()
 
@@ -133,4 +156,4 @@ def view_request(root, frame2):
 
 
 if __name__ == '__main__':
-    main()
+    main("Aaron9932")

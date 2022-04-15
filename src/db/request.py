@@ -22,10 +22,10 @@ def get_users_requests_received(username):
 
 
 # WORKS
-def get_users_requests_made(**kwargs):
+def get_users_requests_made(username):
     return fetch_many("""
         SELECT * FROM p320_24.request WHERE username = %s 
-    """, (tuple(kwargs.values())))
+    """, (username,))
 
 
 def handle_requests(is_accepted, request_id):

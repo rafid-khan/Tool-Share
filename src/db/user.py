@@ -23,6 +23,13 @@ def insert_user(**kwargs):
         INSERT INTO p320_24.user (first_name, last_name, username, password) VALUES (%s, %s, %s, %s)
     """, (tuple(kwargs.values())))
 
+    commit("""
+                UPDATE p320_24.user SET last_date_accessed = now() WHERE username = %s
+            """, (kwargs.get("a"),))
+    commit("""
+                    UPDATE p320_24.user SET creation_date = now() WHERE username = %s
+                """, (kwargs.get("a"),))
+
 
 def insert_email(**kwargs):
     commit("""
@@ -46,7 +53,7 @@ def update_email(username, **kwargs):
 
 def delete_user(username):
     commit("""
-        DELETE FROM p320_24.user WHERE username = %s
+        DELETE FROM p320_24."user" WHERE username = '%s'
     """, (username,))
 
 
@@ -55,13 +62,12 @@ def log_in(username, password):
     correct_password = fetch_one("""
         SELECT password FROM p320_24.user WHERE username = %s
     """, (username,))
+    if correct_password is not None:
+        if correct_password['password'] == password:
+            commit("""
+                UPDATE p320_24.user SET last_date_accessed = now() WHERE username = %s
+            """, (username,))
+            return True
 
-    if correct_password == password:
-        commit("""
-            UPDATE p320_24.user SET last_date_accessed = now() WHERE username = %s 
-        """, (username,))
-        return True
-    else:
-        return False
-
+    return False
 
