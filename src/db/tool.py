@@ -103,7 +103,7 @@ def fetch_available_tools(order: SortBy, group: SortType):
     """, (order.value, group.value))
 
 
-def fetch_users_lent_tools(username, order: SortBy, group: SortType):
+def fetch_users_lent_tools(username,):
     return fetch_many("""
         SELECT p320_24.tool.barcode, p320_24.tool.name,
         p320_24.request.request_date, p320_24.tool.holder,
@@ -118,10 +118,10 @@ def fetch_users_lent_tools(username, order: SortBy, group: SortType):
         INNER JOIN p320_24.category
         ON p320_24.tool.barcode = p320_24.category.barcode
         ORDER BY p320_24.request.request_date
-    """, (username, order.value, group.value))
+    """, (username,))
 
 
-def fetch_user_borrowed_tools(username, order: SortBy, group: SortType):
+def fetch_user_borrowed_tools(username,):
     return fetch_many("""
         SELECT p320_24.tool.barcode, p320_24.tool.name, 
         p320_24.request.request_date, p320_24.ownership.username,
@@ -136,10 +136,10 @@ def fetch_user_borrowed_tools(username, order: SortBy, group: SortType):
         INNER JOIN p320_24.category
         ON p320_24.tool.barcode = p320_24.category.barcode
         ORDER BY p320_24.request.request_date
-    """, (username, order.value, group.value))
+    """, (username,))
 
 
-def fetch_overdue_lent_tools(username, order: SortBy, group: SortType):
+def fetch_overdue_lent_tools(username,):
     return fetch_many("""
         SELECT p320_24.tool.barcode, p320_24.tool.name,
         p320_24.request.request_date, p320_24.tool.holder,
@@ -156,10 +156,10 @@ def fetch_overdue_lent_tools(username, order: SortBy, group: SortType):
         WHERE p320_24.request.owner_expected_date > now()
         AND status = 'Accepted'
         ORDER BY p320_24.request.request_date
-    """, (username, order.value, group.value))
+    """, (username,))
 
 
-def fetch_overdue_borrowed_tools(username, order: SortBy, group: SortType):
+def fetch_overdue_borrowed_tools(username,):
     return fetch_many("""
         SELECT p320_24.tool.barcode, p320_24.tool.name,
         p320_24.request.request_date, p320_24.ownership.username,
@@ -173,7 +173,7 @@ def fetch_overdue_borrowed_tools(username, order: SortBy, group: SortType):
         AND status = 'Accepted'
         AND p320_24.tool.holder = %s
         ORDER BY p320_24.request.request_date
-    """, (username, order.value, group.value))
+    """, (username,))
 
 
 def delete_tool(barcode):
