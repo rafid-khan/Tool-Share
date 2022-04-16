@@ -1,6 +1,5 @@
 from tkinter import *
 from tkinter import font
-
 from faker.generator import random
 
 

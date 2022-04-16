@@ -1,5 +1,9 @@
 from tkinter import *
 import tkinter.font as font
+import GUI.global_variables as gbl_var
+import src.db.request as request
+
+global text_box
 
 type_options = [
     "All",
@@ -51,7 +55,7 @@ def get_user_request_pane(root, frame2):
     bottom_pane = PanedWindow(pane, width=1400, height=500, bg='white')
 
     search_pane = PanedWindow(bottom_pane, width=700, height=500, bg='white')
-
+    global text_box
     text_box = Text(search_pane, height=32, width=70, bg='gray75', yscrollcommand=True, state='normal')
     text_box.pack(expand=True)
 
@@ -62,7 +66,7 @@ def get_user_request_pane(root, frame2):
     initialize_request_pane(accept_request_pane)
 
     accept_request_pane.grid(column=1, row=0, padx=(0, 186))
-
+    search_database(type_clicked, search_clicked, search_box)
     bottom_pane.pack()
     return pane
 
@@ -109,8 +113,54 @@ def handle_request(requestID_text, accept_clicked):
 
 
 def search_database(type_of_tool_dropdown, search_by_dropdown, search_box):
-    print(type_of_tool_dropdown.get())
-    print(search_by_dropdown.get())
-    print(search_box.get("1.0", END))
-
+    global text_box
+    if type_of_tool_dropdown.get() == "All":
+        received = request.get_users_requests_received(gbl_var.username)
+        made = request.get_users_requests_made(gbl_var.username)
+        string_to_print = ""
+        for user_tool in received:
+            string_to_print += "Request ID:          " + user_tool['request_id'] \
+                               + "\nOwner:               " + user_tool['username'] \
+                               + "\nDate Requested:      " + str(user_tool['request_date']) \
+                               + "\nDate to be returned: " + str(user_tool['owner_expected_date']) + "\n\n"
+        for user_tool in made:
+            string_to_print += "Request ID:          " + user_tool['request_id'] \
+                               + "\nHolder:              " + user_tool['username'] \
+                               + "\nDate Requested:      " + str(user_tool['request_date']) \
+                               + "\nDate to be returned: " + str(user_tool['owner_expected_date']) + "\n\n"
+        text_box.delete(1.0, "end")
+        text_box.insert(1.0, string_to_print)
+    elif type_of_tool_dropdown.get() == "Your requests":
+        made = request.get_users_requests_made(gbl_var.username)
+        string_to_print = ""
+        for user_tool in made:
+            string_to_print += "Request ID:          " + user_tool['request_id'] \
+                               + "\nHolder:              " + user_tool['username'] \
+                               + "\nDate Requested:      " + str(user_tool['request_date']) \
+                               + "\nDate to be returned: " + str(user_tool['owner_expected_date']) + "\n\n"
+        text_box.delete(1.0, "end")
+        text_box.insert(1.0, string_to_print)
+    elif type_of_tool_dropdown.get() == "Other's requests":
+        received = request.get_users_requests_received(gbl_var.username)
+        string_to_print = ""
+        for user_tool in received:
+            string_to_print += "Request ID:          " + user_tool['request_id'] \
+                               + "\nOwner:               " + user_tool['username'] \
+                               + "\nDate Requested:      " + str(user_tool['request_date']) \
+                               + "\nDate to be returned: " + str(user_tool['owner_expected_date']) + "\n\n"
+        text_box.delete(1.0, "end")
+        text_box.insert(1.0, string_to_print)
     return
+
+"""
+Request ID:          REQTXXXXXXXX 
+Holder:              XXX1234
+Date Requested:      XXXX-XX-XX
+Date to be returned: XXXX-XX-XX
+
+Request ID:          REQTXXXXXXXX 
+Owner:               XXX1234
+Date Requested:      XXXX-XX-XX
+Date to be returned: XXXX-XX-XX
+
+"""

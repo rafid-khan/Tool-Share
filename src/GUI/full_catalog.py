@@ -1,6 +1,10 @@
 from tkinter import *
 import tkinter.font as font
 from tkcalendar import Calendar
+import src.db.tool as tool
+import GUI.global_variables as gbl_var
+from src.api.utils import SortType
+global text_box
 
 type_options = [
     "All",
@@ -33,6 +37,7 @@ def get_full_catalog_pane(root, frame2):
 
     search_clicked = StringVar()
     search_clicked.set(search_options[0])
+
     search_by_dropdown = OptionMenu(search_pane, search_clicked, *search_options)
     search_by_dropdown.grid(column=2, row=0, padx=5)
 
@@ -50,7 +55,7 @@ def get_full_catalog_pane(root, frame2):
     bottom_pane = PanedWindow(pane, width=1400, height=500, bg='white')
 
     search_pane = PanedWindow(bottom_pane, width=700, height=500, bg='white')
-
+    global text_box
     text_box = Text(search_pane, height=32, width=70, bg='gray75', yscrollcommand=True, state='normal')
     text_box.pack(expand=True)
 
@@ -61,7 +66,8 @@ def get_full_catalog_pane(root, frame2):
     initialize_user_edit_pane(modify_pane)
 
     modify_pane.grid(column=1, row=0, padx=(0, 186))
-
+    search_database(type_clicked, search_clicked, search_box)
+    search_clicked.trace_add("write", search_database(type_clicked, search_clicked, search_box))
     bottom_pane.pack()
     return pane
 
@@ -70,8 +76,28 @@ def search_database(type_of_tool_dropdown, search_by_dropdown, search_box):
     print(type_of_tool_dropdown.get())
     print(search_by_dropdown.get())
     print(search_box.get("1.0", END))
+    global text_box
+    if type_of_tool_dropdown.get() == "All":
+        tools = tool.fetch_all_tools(SortType.ASCENDING)
+        string_to_print = ""
+        for user_tool in tools:
+            string_to_print += "Barcode: " + user_tool['barcode'] + " Name: " + user_tool['name'] + "\n" \
+                                                                                                    "Categories: " + "NONE" + "\n" \
+                                                                                                                              "Description: " + \
+                               user_tool['description'] + "\n\n"
+        text_box.delete(1.0, "end")
+        text_box.insert(1.0, string_to_print)
 
-    return
+    elif type_of_tool_dropdown.get() == "Available":
+        tools = tool.fetch_available_tools()
+        string_to_print = ""
+        for user_tool in tools:
+            string_to_print += "Barcode: " + user_tool['barcode'] + " Name: " + user_tool['name'] + "\n" \
+                                                                                                    "Categories: " + "NONE" + "\n" \
+                                                                                                                              "Description: " + \
+                               user_tool['description'] + "\n\n"
+        text_box.delete(1.0, "end")
+        text_box.insert(1.0, string_to_print)
 
 
 shareable_option = [

@@ -1,6 +1,11 @@
+from random import random
 from tkinter import *
 import tkinter.font as font
+import random as rand
+import src.db.tool as tool
+import GUI.global_variables as gbl_var
 
+global text_box
 
 type_options = [
     "All",
@@ -8,7 +13,6 @@ type_options = [
     "Borrowed",
     "Overdue"
 ]
-
 
 search_options = [
     "Barcode",
@@ -40,7 +44,6 @@ def get_user_catalog_pane(root, frame2):
 
     search_box = Text(search_pane, width=50, height=1, bg='gray75', yscrollcommand=False)
     search_box.grid(column=3, row=0)
-
     search_button = Button(search_pane, height=1, width=10, text="Search",
                            command=lambda: search_database(type_clicked, search_clicked, search_box))
     search_button.grid(column=4, row=0, padx=(5, 10))
@@ -52,7 +55,7 @@ def get_user_catalog_pane(root, frame2):
     bottom_pane = PanedWindow(pane, width=1400, height=500, bg='white')
 
     search_pane = PanedWindow(bottom_pane, width=700, height=500, bg='white')
-
+    global text_box
     text_box = Text(search_pane, height=32, width=70, bg='gray75', yscrollcommand=True, state='normal')
     text_box.pack(expand=True)
 
@@ -63,24 +66,90 @@ def get_user_catalog_pane(root, frame2):
     initialize_user_edit_pane(modify_pane)
 
     modify_pane.grid(column=1, row=0, padx=(0, 186))
-
+    search_database(type_clicked, search_clicked, search_box)
     bottom_pane.pack()
     return pane
 
 
 def search_database(type_of_tool_dropdown, search_by_dropdown, search_box):
-    print(type_of_tool_dropdown.get())
-    print(search_by_dropdown.get())
-    print(search_box.get("1.0", END))
+    global text_box
+    if type_of_tool_dropdown.get() == "All":
+        tools = tool.view_user_tools(gbl_var.username)
+        string_to_print = get_tool_string(tools, False, True)
+        text_box.configure(state='normal')
+        text_box.delete(1.0, "end")
+        text_box.insert(1.0, string_to_print)
+        text_box.configure(state='disabled')
+    elif type_of_tool_dropdown.get() == "Lent":
+        tools = tool.fetch_users_lent_tools(gbl_var.username)
+        tools_overdue = tool.fetch_overdue_lent_tools(gbl_var.username)
+        string_to_print = get_tool_string(tools, False, False)
+        string_to_print += get_tool_string(tools_overdue, True, False)
+        text_box.configure(state='normal')
+        text_box.delete(1.0, "end")
+        text_box.insert(1.0, string_to_print)
+        text_box.configure(state='disabled')
+    elif type_of_tool_dropdown.get() == "Borrowed":
+        tools = tool.fetch_users_borrowed_tools(gbl_var.username)
+        tools_overdue = tool.fetch_overdue_borrowed_tools(gbl_var.username)
+        string_to_print = get_tool_string(tools, False, False)
+        string_to_print += get_tool_string(tools_overdue, True, False)
+        text_box.configure(state='normal')
+        text_box.delete(1.0, "end")
+        text_box.insert(1.0, string_to_print)
+        text_box.configure(state='disabled')
+    elif type_of_tool_dropdown.get() == "Overdue":
+        tools_borrowed = tool.fetch_overdue_borrowed_tools(gbl_var.username)
+        tools_lent = tool.fetch_overdue_lent_tools(gbl_var.username)
+        string_to_print = get_tool_string(tools_borrowed, True, False)
+        string_to_print += get_tool_string(tools_lent, True, False)
+        text_box.configure(state='normal')
+        text_box.delete(1.0, "end")
+        text_box.insert(1.0, string_to_print)
+        text_box.configure(state='disabled')
+
 
     return
 
+
+def get_tool_string(tools, isOverdue, isAll):
+    # print(tools)
+    string_to_print = ""
+    for user_tool in tools:
+        if isOverdue:
+            string_to_print += "*** OVERDUE ***\n"
+        categories = tool.view_tool_category(user_tool['barcode'])
+        category_string = ""
+        for category_list in categories:
+            for category in category_list.values():
+                category_string += category + ","
+        if (isAll):
+            string_to_print +=   "Barcode:     | " + user_tool['barcode'] \
+                               + "\nName:        | " + user_tool['name'] \
+                               + "\nCategories:  | " + category_string[:len(category_string) - 1] \
+                               + "\nDescription: | " + user_tool['description'] + "\n\n"
+        else:
+            string_to_print +=   "Barcode:             | " + user_tool['barcode'] \
+                               + "\nName:                | " + user_tool['name'] \
+                               + "\nDate to be returned: | " + str(user_tool['owner_expected_date'])\
+                               + "\nCategories:          | " + category_string[:len(category_string) - 1] \
+                               + "\nDescription:         | " + user_tool['description'] + "\n\n"
+        # print(string_to_print)
+    return string_to_print
+
+"""
+
+Barcode:     XXXXXXXX 
+Name:        XXXXXXXXXXXXX
+Categories:  
+Description:          
+
+"""
 
 shareable_option = [
     "Yes",
     "No"
 ]
-
 
 modify_option = [
     "Name",
@@ -159,19 +228,35 @@ def initialize_modify_action(modify_clicked, modify_text, modify_tool_button):
         else:
             modify_text.configure(width=20, height=3)
             modify_tool_button["text"] = "Modify Desc"
+
     modify_clicked.trace("w", update_modify)
 
 
 def add_tool(name_text, desc_text, shareable_clicked):
-    print(name_text.get("1.0", END))
-    print(desc_text.get("1.0", END))
-    print(shareable_clicked.get())
+    name = name_text.get("1.0", END).split("\n")[0]
+    desc = desc_text.get("1.0", END).split("\n")[0]
+    shareable = shareable_clicked.get()
+    if shareable == "Yes":
+        shareable = True
+    if shareable == "No":
+        shareable = False
+    barcode = rand.randrange(10000000, 99999999)
+    while tool.fetch_tool(str(barcode)) is not None:
+        barcode = rand.randrange(10000000, 99999999)
+        print(barcode)
+    tool.insert_tool(a=str(barcode), c=shareable, d=name, e=desc, f=gbl_var.username)
+
     pass
 
 
 def delete_tool(barcode_text):
-    print(barcode_text.get("1.0", END))
-    pass
+    barcode = barcode_text.get("1.0", END).split("\n")[0]
+    print(tool.fetch_tool(barcode))
+    if tool.fetch_tool(barcode) is None:
+        print("No tool")
+    else:
+        tool.delete_tool(barcode)
+
 
 
 def modify_tool(barcode_text, modify_clicked, modify_string):
@@ -184,12 +269,22 @@ Barcode: XXXXXXXX Name: XXXXXXXXXXXXX
 Categories: 
 Description:
 
+*** OVERDUE ***
 Barcode: XXXXXXXX Name: XXXXXXXXXXXXX
 Categories: 
+Return Date:
 Description:
 
+*** OVERDUE ***
 Barcode: XXXXXXXX Name: XXXXXXXXXXXXX
 Categories: 
+Return Date:
+Description:
+
+*** OVERDUE ***
+Barcode: XXXXXXXX Name: XXXXXXXXXXXXX
+Categories: 
+Return Date:
 Description:
 
 """
