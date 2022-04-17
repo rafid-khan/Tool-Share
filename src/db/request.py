@@ -43,6 +43,8 @@ def handle_requests(is_accepted, request_id):
             UPDATE p320_24.tool
             SET holder = p320_24.request.username
             FROM p320_24.request
+            INNER JOIN p320_24.request
+            ON p320_24.tool.barcode = p320_24.request.barcode
             WHERE p320_24.request.request_id = %s
         """, (request_id,))
 
@@ -66,6 +68,3 @@ def return_tool(barcode):
     commit("""
         UPDATE p320_24.request SET status = 'Finished' WHERE barcode = %s
     """)
-
-
-
