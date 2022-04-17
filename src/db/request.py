@@ -42,10 +42,9 @@ def handle_requests(is_accepted, request_id):
         commit("""
             UPDATE p320_24.tool
             SET holder = p320_24.request.username
-            FROM p320_24.request
-            INNER JOIN p320_24.request
-            ON p320_24.tool.barcode = p320_24.request.barcode
-            WHERE p320_24.request.request_id = %s
+            FROM p320_24.tool, p320_24.request
+            WHERE p320_24.tool.barcode = p320_24.request.barcode
+            AND p320_24.request.request_id = %s
         """, (request_id,))
 
     else:
