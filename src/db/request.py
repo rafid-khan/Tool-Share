@@ -31,39 +31,51 @@ def get_users_requests_made(username):
 def handle_requests(is_accepted, request_id):
     if is_accepted:
         commit("""
-            UPDATE p320_24.request SET status = 'ACCEPTED' WHERE request_id = %s 
+            UPDATE p320_24.request 
+            SET status = 'ACCEPTED' 
+            WHERE request_id = %s 
         """, (request_id,))
 
         commit("""
-            UPDATE p320_24.tool SET shareable = False WHERE barcode IN 
+            UPDATE p320_24.tool 
+            SET shareable = False 
+            WHERE barcode IN 
             (SELECT barcode FROM p320_24.request WHERE request_id = %s)
         """, (request_id,))
 
         commit("""
             UPDATE p320_24.tool
             SET holder = p320_24.request.username
-            FROM p320_24.tool, p320_24.request
+            FROM p320_24.request
             WHERE p320_24.tool.barcode = p320_24.request.barcode
             AND p320_24.request.request_id = %s
         """, (request_id,))
 
     else:
         commit("""
-            UPDATE p320_24.request SET status = 'DENIED' WHERE request_id = %s
+            UPDATE p320_24.request 
+            SET status = 'DENIED' 
+            WHERE request_id = %s
         """, (request_id,))
 
 
 def return_tool(barcode):
     commit("""
-        UPDATE p320_24.tool SET holder = p320_24.ownership.username 
-        WHERE p320_24.ownership.username IN (SELECT username FROM p320_24.ownership 
+        UPDATE p320_24.tool 
+        SET holder = p320_24.ownership.username 
+        WHERE p320_24.ownership.username IN 
+        (SELECT username FROM p320_24.ownership 
         WHERE p320_24.ownership.barcode = %s)
     """, (barcode,))
 
     commit("""
-        UPDATE p320_24.tool SET shareable = True WHERE barcode = %s 
+        UPDATE p320_24.tool 
+        SET shareable = True 
+        WHERE barcode = %s 
     """, (barcode,))
 
     commit("""
-        UPDATE p320_24.request SET status = 'Finished' WHERE barcode = %s
-    """)
+        UPDATE p320_24.request 
+        SET status = 'Finished' 
+        WHERE barcode = %s
+    """, (barcode,))
