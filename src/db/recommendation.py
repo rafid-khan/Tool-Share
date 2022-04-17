@@ -2,8 +2,6 @@ from psycopg2.sql import SQL, Identifier
 
 from .utils import fetch_many, fetch_one, commit
 
-from src.api.utils import SortType, SortBy
-
 
 def also_borrowed(barcode):
     get_top = fetch_many("""
