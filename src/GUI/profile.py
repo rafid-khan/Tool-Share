@@ -2,13 +2,15 @@ from tkinter import *
 import tkinter.font as font
 import GUI.global_variables as gbl_var
 import src.db.user as user
-
+import re
 
 def get_profile_pane(root, frame2):
     root.title("Tools - Profile")
 
     pane = PanedWindow(frame2, width=1400, height=596, bg='#EFE2BA')
     user_dict = user.fetch_user(gbl_var.username)
+    print(gbl_var.username)
+    print(user_dict)
     left_pane = PanedWindow(pane, width=200, height=596, bg='#417154')
     left_pane.grid(column=0, row=0, pady=0, padx=0)
     middle_pane = PanedWindow(pane, width=1000, height=596, bg='#EFE2BA')
@@ -60,10 +62,12 @@ def get_profile(root, bottom_pane):
     creation_date_label = Label(user_information_pane, bg='#EFE2BA', fg='#A67B5C', text=date_string, font=user_small_info_font)
     creation_date_label.pack(pady=(0, 15))
     # Email
-    if user_info['email'] is None:
-        email_string = "None"
-    else:
+    has_email = False
+    try:
         email_string = user_info['email']
+        has_email = True
+    except KeyError:
+        email_string = "None"
     email_label = Label(user_information_pane, bg='#EFE2BA', fg='#A67B5C', text="Email", font=user_info_font)
     email_label.pack(pady=(0, 8))
     email = Label(user_information_pane, bg='#EFE2BA', fg='#A67B5C', text=email_string, font=user_small_info_font)
@@ -82,7 +86,10 @@ def get_profile(root, bottom_pane):
     email_label.grid(column=0, row=1, padx=5, pady=(0, 10))
     email_text = Text(user_modification_pane, width=20, height=1, bg='gray85', font=small_font)
     email_text.grid(column=1, row=1, pady=(0, 10))
-    email_button = Button(user_modification_pane, text="Update Email", font=small_font)
+    email_error_label = Label(user_modification_pane, text="Format: johndoe12@gmail.com", bg='#EFE2BA', fg='#EFE2BA')
+    email_error_label.grid(column=2, row=0)
+    email_button = Button(user_modification_pane, text="Update Email", font=small_font,
+                          command=lambda: updateEmail(email_text, has_email, email_error_label))
     email_button.grid(column=2, row=1, pady=(0, 10), padx=(0, 20))
     # Password
     change_password_label = Label(user_modification_pane, text="Change Password", bg='#EFE2BA', fg='#A67B5C', font=big_font)
@@ -96,8 +103,20 @@ def get_profile(root, bottom_pane):
     confirm_password_label.grid(column=0, row=4, padx=5, pady=10)
     confirm_password_text = Text(user_modification_pane, width=20, height=1, bg='gray85', font=small_font)
     confirm_password_text.grid(column=1, row=4, pady=10)
-    confirm_password_button = Button(user_modification_pane, text="Change Password", font=small_font)
+    confirm_password_button = Button(user_modification_pane, text="Change Password", font=small_font,
+                          command=lambda: updatePassword(email_text, has_email, email_error_label))
     confirm_password_button.grid(column=2, row=4, padx=(20, 0))
 
     user_modification_pane.grid(column=1, row=0, padx=(0, 98))
 
+
+def updateEmail(email_text, has_email, email_error_label):
+    email = email_text.get("1.0", END).split("\n")[0]
+    if re.search("\w+@\w+.\w+", email):
+        if has_email:
+            user.update_email(gbl_var.username, email=email)
+        else:
+            user.insert_email(username=gbl_var.username, email=email)
+            email_error_label.configure(fg='#EFE2BA')
+    else:
+        email_error_label.configure(fg='red')

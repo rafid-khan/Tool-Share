@@ -52,7 +52,6 @@ def search_tool(identifier, keyword, order: SortBy, group: SortType):
            WHERE p320_24.tool.barcode LIKE (\'%"""
         string_to_fetch += keyword + "%\')\nORDER BY "
         string_to_fetch += group.value + order.value
-        print(string_to_fetch)
         return fetch_many(string_to_fetch)
     else:
         Exception(ValueError)

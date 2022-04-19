@@ -25,26 +25,21 @@ def also_borrowed(barcode):
     GROUP BY p320_24.tool.name
     ORDER BY count DESC
     LIMIT 3
-    """, (barcode,))
+    """, (barcode, barcode, ))
 
-    i = 0
-    name = []
+    name_list = []
     for user_tool in get_top:
-        name[i] = user_tool['name']
-        i += 1
+        name_list.append(user_tool['name'])
 
-    result = ()
-    for names in name:
-        result.__add__(fetch_one("""
-            SELECT p320_24.tool.barcode, name,
-            description, p320_24.category.tag_name
+    result = []
+    for name in name_list:
+        result.append(fetch_one("""
+            SELECT p320_24.tool.barcode, p320_24.tool.name
             FROM p320_24.tool
-            INNER JOIN p320_24.category
-            ON p320_24.tool.barcode = p320_24.category.barcode
             WHERE name = %s
             AND shareable = true
             LIMIT 1
-        """, (name[names])))
+        """, (name, )))
 
     return result
 

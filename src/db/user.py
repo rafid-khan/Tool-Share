@@ -6,13 +6,20 @@ from .utils import fetch_many, fetch_one, commit
 
 # WORKS
 def fetch_user(username):
-    return fetch_one("""
+    user_dict = fetch_one("""
         SELECT * 
         FROM p320_24.user 
         INNER JOIN p320_24.email
         ON p320_24.user.username = p320_24.email.username  
         WHERE p320_24.user.username = %s 
     """, (username,))
+    if user_dict is None:
+        user_dict = fetch_one("""
+                SELECT * 
+                FROM p320_24.user 
+                WHERE p320_24.user.username = %s 
+            """, (username,))
+    return user_dict
 
 
 # WORKS
@@ -48,11 +55,10 @@ def update_user(username, **kwargs):
     commit(query, (tuple(kwargs.values()), username))
 
 
-def update_email(username, **kwargs):
-    query = SQL("UPDATE p320_24.email SET ({}) = %s WHERE username = %s") \
-        .format(SQL(', ').join(map(Identifier, list(kwargs.keys()))))
-
-    commit(query, (tuple(kwargs.values()), username))
+def update_email(username, email):
+    commit("""
+            UPDATE p320_24.email SET email = %s WHERE username = %s
+        """, (email, username, ))
 
 
 def delete_user(username):

@@ -1,6 +1,9 @@
 from tkinter import *
 from tkinter import font
 from faker.generator import random
+import src.db.recommendation as rec
+import src.db.tool as tool
+import src.GUI.global_variables as gbl_var
 
 
 def get_dashboard_pane(root, frame2):
@@ -12,7 +15,7 @@ def get_dashboard_pane(root, frame2):
     chart = create_pie_chart(left_pane)
     chart.pack(padx=(50, 10), pady=10)
     label_font = font.Font(size=15)
-    user_top_requested_tools_label = Label(left_pane, text="Your Top Requested Tools:", font=label_font, bg='white')
+    user_top_requested_tools_label = Label(left_pane, text="Top Lent Tools:", font=label_font, bg='white')
     user_top_requested_tools_label.pack()
     user_top_requested_tools_text = Text(left_pane, height=12, width=70, bg='gray50'
                                          , yscrollcommand=True)
@@ -21,13 +24,46 @@ def get_dashboard_pane(root, frame2):
 
     right_pane = PanedWindow(pane, width=800, height=600, bg='white')
 
-    top_requested_tools_label = Label(right_pane, text="Top Overall Requested Tools:", font=label_font, bg='white')
+    top_requested_tools_label = Label(right_pane, text="Top Borrowed Tools:", font=label_font, bg='white')
     top_requested_tools_label.pack()
-    text_box = Text(right_pane, height=33, width=80, bg='gray50', yscrollcommand=True)
-    text_box.pack(expand=True, padx=(135, 125), pady=(16, 13))
+    top_requested_tools_text = Text(right_pane, height=33, width=80, bg='gray50', yscrollcommand=True)
+
+    top_requested_tools_text.pack(expand=True, padx=(135, 125), pady=(16, 13))
+
+    # load_top_borrowed(top_requested_tools_text)
 
     right_pane.grid(column=1, row=0)
     return pane
+
+
+def load_top_borrowed(top_requested_tools_text):
+    tool_list = rec.top_borrowed_tools(gbl_var.username)
+    string_to_print = ""
+    for user_tool in tool_list:
+        categories = tool.fetch_category(user_tool['barcode'])
+        category_string = ""
+        for category_list in categories:
+            for category in category_list.values():
+                category_string += category + ","
+        string_to_print += "Barcode:     | " + user_tool['barcode'] \
+                           + "\nName:        | " + user_tool['name'] \
+                           + "\nCategories:  | " + category_string[:len(category_string) - 1] \
+                           + "\nDescription: | " + user_tool['description'] + "\n\n"
+    top_requested_tools_text.configure(state='normal')
+    top_requested_tools_text.delete(1.0, "end")
+    top_requested_tools_text.insert(1.0, string_to_print)
+    top_requested_tools_text.configure(state='disabled')
+
+
+"""
+
+Barcode:     XXXXXXXX 
+Name:        XXXXXXXXXXXXX
+Categories:  
+Description:          
+
+"""
+
 
 data = [
     3,
@@ -37,7 +73,6 @@ data = [
 ]
 
 dict = {}
-
 
 def create_pie_chart(root):
     # create function

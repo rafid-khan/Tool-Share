@@ -6,11 +6,13 @@ import GUI.global_variables as gbl_var
 from src.api.utils import SortType
 from src.api.utils import SortBy
 import src.db.request as request
+import src.db.recommendation as rec
 import random as rand
 global text_box
 global tools_list
 global tool_index
 global max_index
+global recommendation_text_box
 
 type_options = [
     "All",
@@ -88,7 +90,7 @@ def get_full_catalog_pane(root, frame2):
     output_pane = PanedWindow(bottom_pane, width=700, height=500, bg='#EFE2BA')
     # Text box for full catalog
     global text_box
-    text_box = Text(output_pane, height=30, width=70, bg='gray75', yscrollcommand=True, state='normal')
+    text_box = Text(output_pane, height=30, width=70, bg='gray85', yscrollcommand=True, state='normal')
     text_box.grid(column=0, row=0)
     # Previous Button
     Prev_button = Button(output_pane, height=1, width=10, text="Prev",
@@ -145,6 +147,7 @@ def search_database(type_of_tool_dropdown, search_clicked, sort_type_clicked, so
                 tools_list[tool_index] = tmp_list
                 tmp_list = []
                 tool_index += 1
+                print(tool_index)
         if len(tmp_list) != 0:
             tools_list[tool_index] = tmp_list
             tool_index += 1
@@ -224,31 +227,40 @@ modify_option = [
 
 
 def initialize_user_edit_pane(modify_pane):
+
+    request_pane = PanedWindow(modify_pane, bg='#EFE2BA')
     label_font = font.Font(size=18)
-    # Add a tool section
-    add_tool_label = Label(modify_pane, text="Request a tool", bg='#EFE2BA', font=label_font)
-    add_tool_label.grid(column=1, row=0)
-    barcode_label = Label(modify_pane, text="Enter a barcode:", bg='#EFE2BA')
+    # Request
+    request_label = Label(request_pane, text="Request a tool", bg='#EFE2BA', font=label_font)
+    request_label.grid(column=1, row=0)
+    barcode_label = Label(request_pane, text="Enter a barcode:", bg='#EFE2BA')
     barcode_label.grid(column=0, row=1, padx=(40, 0), pady=(10, 0))
-    barcode_text = Text(modify_pane, width=20, height=1, bg='gray85')
+    barcode_text = Text(request_pane, width=20, height=1, bg='gray85')
     barcode_text.grid(column=1, row=1, pady=(10, 0))
 
-    borrow_period_label = Label(modify_pane, text="Borrow period (in days):", bg='#EFE2BA')
+    borrow_period_label = Label(request_pane, text="Borrow period (in days):", bg='#EFE2BA')
     borrow_period_label.grid(column=0, row=2, pady=(0, 5))
-    borrow_period_text = Text(modify_pane, width=20, heigh=1, bg='gray85')
+    borrow_period_text = Text(request_pane, width=20, heigh=1, bg='gray85')
     borrow_period_text.grid(column=1, row=2, pady=(5, 10))
 
-    cal_label = Label(modify_pane, text="Enter the requested date:", bg='#EFE2BA')
+    cal_label = Label(request_pane, text="Enter the requested date:", bg='#EFE2BA')
     cal_label.grid(column=0, row=3, padx=(0, 5), pady=(0, 170))
-    cal = Calendar(modify_pane, selectmode='day',
+    cal = Calendar(request_pane, selectmode='day',
                    year=2020, month=5,
                    day=22)
     cal.grid(column=1, row=3)
 
-    request_tool_button = Button(modify_pane,
-                             text="Request tool",
-                             command=lambda: request_tool(barcode_text, cal, borrow_period_text))
-    request_tool_button.grid(column=1, row=4, pady=(20, 0))
+    request_tool_button = Button(request_pane,
+                                 text="Request tool",
+                                 command=lambda: request_tool(barcode_text, cal, borrow_period_text))
+    request_tool_button.grid(column=2, row=1, padx=(10, 0))
+    request_pane.pack()
+    # Tool recommendations
+    recommendation_label = Label(modify_pane, text="Tool Recommendation", bg='#EFE2BA', font=label_font)
+    recommendation_label.pack()
+    global recommendation_text_box
+    recommendation_text_box = Text(modify_pane, height=11, width=60, bg='gray85', yscrollcommand=True, state='normal')
+    recommendation_text_box.pack()
 
 
 def request_tool(barcode_text, cal, borrow_period_text):
@@ -263,7 +275,27 @@ def request_tool(barcode_text, cal, borrow_period_text):
         request_id = "REQT" + str(rand.randrange(10000000, 99999999))
 
     request.create_request(a=request_id, b=username, c=barcode, d=borrowed_period, e=date_string)
+    get_recommendations(barcode)
     pass
+
+
+def get_recommendations(barcode):
+    tool_list = rec.also_borrowed(barcode)
+    global recommendation_text_box
+    string_to_print = ""
+    for user_tool in tool_list:
+        categories = tool.fetch_category(user_tool['barcode'])
+        category_string = ""
+        for category_list in categories:
+            for category in category_list.values():
+                category_string += category + ","
+        string_to_print += "Barcode:     | " + user_tool['barcode'] \
+                           + "\nName:        | " + user_tool['name'] \
+                           + "\nCategories:  | " + category_string[:len(category_string) - 1] + "\n\n"
+    recommendation_text_box.configure(state='normal')
+    recommendation_text_box.delete(1.0, "end")
+    recommendation_text_box.insert(1.0, string_to_print)
+    recommendation_text_box.configure(state='disabled')
 
 
 """

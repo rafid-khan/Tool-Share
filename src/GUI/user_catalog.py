@@ -9,6 +9,11 @@ from src.api.utils import SortType
 from src.api.utils import SortBy
 import src.db.ownership as ownership
 global text_box
+global tools_list
+global tool_index
+global max_index
+global is_all
+global is_overdue
 
 type_options = [
     "All",
@@ -57,94 +62,145 @@ def get_user_catalog_pane(root, frame2):
 
     bottom_pane = PanedWindow(pane, width=1400, height=500, bg='#EFE2BA')
 
-    search_pane = PanedWindow(bottom_pane, width=700, height=500, bg='#EFE2BA')
+    output_pane = PanedWindow(bottom_pane, width=700, height=500, bg='#EFE2BA')
+    # Text box for full catalog
     global text_box
-    text_box = Text(search_pane, height=32, width=70, bg='gray85', yscrollcommand=True, state='normal')
-    text_box.pack(expand=True)
+    text_box = Text(output_pane, height=30, width=70, bg='gray85', yscrollcommand=True, state='normal')
+    text_box.grid(column=0, row=0)
+    # Previous Button
+    Prev_button = Button(output_pane, height=1, width=10, text="Prev",
+                         command=lambda: prev_list())
+    Prev_button.grid(column=0, row=1, padx=(300, 10), pady=(0, 10))
+    # Next button
+    next_button = Button(output_pane, height=1, width=10, text="Next",
+                         command=lambda: next_list())
+    next_button.grid(column=0, row=1, padx=(450, 0), pady=(0, 10))
 
-    search_pane.grid(column=0, row=0, padx=148, pady=(11, 10))
+    output_pane.grid(column=0, row=0, padx=148, pady=(11, 10))
 
     modify_pane = PanedWindow(bottom_pane, width=700, height=500, bg='#EFE2BA')
 
     initialize_user_edit_pane(modify_pane)
 
     modify_pane.grid(column=1, row=0, padx=(0, 186))
-    search_database(type_clicked, search_clicked, search_box)
+    search_database(type_clicked,
+                    search_clicked,
+                    search_box)
     bottom_pane.pack()
     return pane
 
 
 def search_database(type_of_tool_dropdown, search_by_dropdown, search_box):
     global text_box
+    global is_all
+    global is_overdue
     sort_by = SortType.NAME
     sort_type = SortBy.ASCENDING
     # if sort_by_clicked.get() == "Category":
     #     sort_by = SortType.CATEGORY
     # if sort_type_clicked.get() == "Descending":
     #     sort_type = SortBy.DESCENDING
+    tools_dict_list = {}
+
     if type_of_tool_dropdown.get() == "All":
-        tools = tool.view_user_tools(gbl_var.username, sort_type, sort_by)
-        string_to_print = get_tool_string(tools, False, True)
-        text_box.configure(state='normal')
-        text_box.delete(1.0, "end")
-        text_box.insert(1.0, string_to_print)
-        text_box.configure(state='disabled')
+        tools_dict_list = tool.view_user_tools(gbl_var.username, sort_type, sort_by)
+        is_all = True
+        is_overdue = False
     elif type_of_tool_dropdown.get() == "Lent":
-        tools = tool.fetch_users_lent_tools(gbl_var.username)
-        tools_overdue = tool.fetch_overdue_lent_tools(gbl_var.username)
-        string_to_print = get_tool_string(tools, False, False)
-        string_to_print += get_tool_string(tools_overdue, True, False)
-        text_box.configure(state='normal')
-        text_box.delete(1.0, "end")
-        text_box.insert(1.0, string_to_print)
-        text_box.configure(state='disabled')
+        tools_dict_list = tool.fetch_users_lent_tools(gbl_var.username)
+        is_all = False
+        is_overdue = False
     elif type_of_tool_dropdown.get() == "Borrowed":
-        tools = tool.fetch_users_borrowed_tools(gbl_var.username)
-        tools_overdue = tool.fetch_overdue_borrowed_tools(gbl_var.username)
-        string_to_print = get_tool_string(tools, False, False)
-        string_to_print += get_tool_string(tools_overdue, True, False)
-        text_box.configure(state='normal')
-        text_box.delete(1.0, "end")
-        text_box.insert(1.0, string_to_print)
-        text_box.configure(state='disabled')
+        tools_dict_list = tool.fetch_users_borrowed_tools(gbl_var.username)
+        is_all = False
+        is_overdue = False
     elif type_of_tool_dropdown.get() == "Overdue":
         tools_borrowed = tool.fetch_overdue_borrowed_tools(gbl_var.username)
         tools_lent = tool.fetch_overdue_lent_tools(gbl_var.username)
-        string_to_print = get_tool_string(tools_borrowed, True, False)
-        string_to_print += get_tool_string(tools_lent, True, False)
+        tools_dict_list = tools_borrowed + tools_lent
+        is_all = False
+        is_overdue = True
+
+    global tools_list
+    global tool_index
+    tool_index = 0
+    # loading each page as a key in a new dict
+    tools_list = {}
+    i = 0
+    tmp_list = []
+    if tools_dict_list is not None:
+        for tool_dict in tools_dict_list:
+            tmp_list.append(tool_dict)
+            i += 1
+            if i % 6 == 0:
+                tools_list[tool_index] = tmp_list
+                tmp_list = []
+                tool_index += 1
+                print(tool_index)
+        if len(tmp_list) != 0:
+            tools_list[tool_index] = tmp_list
+            tool_index += 1
+        global max_index
+        max_index = tool_index
+        tool_index = 0
+        load_new_page()
+    else:
+        global text_box
         text_box.configure(state='normal')
         text_box.delete(1.0, "end")
-        text_box.insert(1.0, string_to_print)
+        text_box.insert(1.0, " *** No Tools Found *** ")
         text_box.configure(state='disabled')
-
-
     return
 
 
-def get_tool_string(tools, isOverdue, isAll):
-    # print(tools)
+def load_new_page():
+    global tools_list
+    global tool_index
+    print_to_text(tools_list[tool_index])
+
+
+def prev_list():
+    global tool_index
+    if tool_index - 1 > 0:
+        tool_index -= 1
+        load_new_page()
+
+
+def next_list():
+    global tool_index
+    global max_index
+    if tool_index + 1 < max_index:
+        tool_index += 1
+        load_new_page()
+
+
+def print_to_text(tools):
+    global is_all
+    global is_overdue
     string_to_print = ""
     for user_tool in tools:
-        if isOverdue:
+        if is_overdue:
             string_to_print += "*** OVERDUE ***\n"
         categories = tool.fetch_category(user_tool['barcode'])
         category_string = ""
         for category_list in categories:
             for category in category_list.values():
-                category_string += category + ","
-        if isAll:
+                category_string += category + ", "
+        if is_all:
             string_to_print +=   "Barcode:     | " + user_tool['barcode'] \
                                + "\nName:        | " + user_tool['name'] \
-                               + "\nCategories:  | " + category_string[:len(category_string) - 1] \
+                               + "\nCategories:  | " + category_string[:len(category_string) - 2] \
                                + "\nDescription: | " + user_tool['description'] + "\n\n"
         else:
             string_to_print +=   "Barcode:             | " + user_tool['barcode'] \
                                + "\nName:                | " + user_tool['name'] \
                                + "\nDate to be returned: | " + str(user_tool['owner_expected_date'])\
-                               + "\nCategories:          | " + category_string[:len(category_string) - 1] \
+                               + "\nCategories:          | " + category_string[:len(category_string) - 2] \
                                + "\nDescription:         | " + user_tool['description'] + "\n\n"
-        # print(string_to_print)
-    return string_to_print
+    text_box.configure(state='normal')
+    text_box.delete(1.0, "end")
+    text_box.insert(1.0, string_to_print)
+    text_box.configure(state='disabled')
 
 """
 
