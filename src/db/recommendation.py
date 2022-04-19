@@ -120,3 +120,19 @@ def pie_chart(username):
     result = total + lent + borrowed
 
     return result
+
+
+def latest_requests():
+    fetch_many("""
+        SELECT p320_24.request.request_id, p320_24.tool.name,
+        p320_24.request.barcode, p320_24.category.tag_name, 
+        p320_24.ownership.username
+        FROM p320_24.request
+        INNER JOIN p320_24.tool
+        ON p320_24.tool.barcode = p320_24.request.barcode
+        INNER JOIN p320_24.category
+        ON p320_24.request.barcode = p320_24.category.barcode
+        INNER JOIN p320_24.ownership
+        ON p320_24.request.barcode = p320_24.ownership.barcode
+    """)
+
