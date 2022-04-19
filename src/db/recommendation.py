@@ -90,3 +90,38 @@ def top_borrowed_tools(username):
         LIMIT 10
     """, (username,))
 
+
+def pie_chart(username):
+    total = fetch_many("""
+        SELECT COUNT(p320_24.tool.name) AS total
+        FROM p320_24.tool
+        INNER JOIN p320_24.ownership
+        ON p320_24.tool.barcode = p320_24.ownership.barcode
+        WHERE holder = %s OR p320_24.ownership.username = %s
+    """, (username, username,))
+
+    lent = fetch_many("""
+        SELECT COUNT(p320_24.tool.name) AS lent
+        FROM p320_24.tool
+        INNER JOIN p320_24.ownership
+        ON p320_24.tool.barcode = p320_24.ownership.barcode
+        AND p320_24.tool.holder != p320_24.ownership.username
+        AND p320_24.ownership.username = %s
+        INNER JOIN p320_24.request
+        ON p320_24.tool.barcode = p320_24.request.barcode
+    """, (username,))
+
+    borrowed = fetch_many("""
+        SELECT COUNT(p320_24.tool.name) AS borrowed 
+        FROM p320_24.tool
+        INNER JOIN p320_24.ownership
+        ON p320_24.tool.barcode = p320_24.ownership.barcode
+        AND p320_24.tool.holder != p320_24.ownership.username
+        AND p320_24.tool.holder = %s
+        INNER JOIN p320_24.request
+        ON p320_24.tool.barcode = p320_24.request.barcode
+    """)
+
+    result = total + lent + borrowed
+
+    return result
