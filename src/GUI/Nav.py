@@ -140,7 +140,7 @@ def view_profile(root, frame2):
     prev_pane[len(prev_pane) - 1].pack_forget()
     pane = pf.get_profile_pane(root, frame2)
 
-    pane.pack()
+    pane.pack(padx=0, pady=0)
     frame2.pack()
     return
 

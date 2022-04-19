@@ -7,7 +7,11 @@ from .utils import fetch_many, fetch_one, commit
 # WORKS
 def fetch_user(username):
     return fetch_one("""
-        SELECT * FROM p320_24.user WHERE username = %s 
+        SELECT * 
+        FROM p320_24.user 
+        INNER JOIN p320_24.email
+        ON p320_24.user.username = p320_24.email.username  
+        WHERE p320_24.user.username = %s 
     """, (username,))
 
 

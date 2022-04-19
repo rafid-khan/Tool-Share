@@ -14,7 +14,7 @@ def fetch_ownership(user, code=None):
 
 def insert_ownership(**kwargs):
     commit("""
-        INSERT INTO p320_24.ownership (username, barcode, purchase_price, purchase_date) VALUES (%s, %s, %s, %s)
+        INSERT INTO p320_24.ownership (username, barcode, purchase_price, purchase_date) VALUES (%s, %s, %s, now())
     """, (tuple(kwargs.values())))
 
 

@@ -8,15 +8,26 @@ from .utils import fetch_one, fetch_many, commit
 # WORKS
 def create_request(**kwargs):
     commit("""
-            INSERT INTO p320_24.request (request_id, username, barcode, status, borrow_period, request_date) 
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO p320_24.request (request_id, username, barcode, status, 
+            borrow_period, request_date, owner_expected_date, actual_return_date) 
+            VALUES (%s, %s, %s, 'Pending', %s, %s, null, null)
         """, (tuple(kwargs.values())))
+
+
+def get_request(request_id):
+    return fetch_one("""
+    Select p320_24.request.request_id
+    FROM p320_24.request
+    WHERE p320_24.request.request_id = %s 
+    """, (request_id,))
 
 
 # WORKS
 def get_users_requests_received(username):
     return fetch_many("""
-        SELECT * FROM p320_24.request WHERE barcode IN
+        SELECT * 
+        FROM p320_24.request
+        WHERE barcode IN
         (SELECT barcode FROM p320_24.ownership WHERE p320_24.ownership.username = %s)
     """, (username,))
 
@@ -24,17 +35,23 @@ def get_users_requests_received(username):
 # WORKS
 def get_users_requests_made(username):
     return fetch_many("""
-        SELECT * FROM p320_24.request WHERE username = %s 
+        SELECT p320_24.request.request_id, p320_24.request.request_date,
+        p320_24.request.owner_expected_date, p320_24.ownership.username
+        FROM p320_24.request 
+        INNER JOIN p320_24.ownership
+        ON p320_24.request.barcode = p320_24.ownership.barcode
+        WHERE p320_24.request.username = %s 
     """, (username,))
 
 
-def handle_requests(is_accepted, request_id):
+def handle_requests(is_accepted, request_id, owner_expected_date):
     if is_accepted:
         commit("""
             UPDATE p320_24.request 
-            SET status = 'ACCEPTED' 
-            WHERE request_id = %s 
-        """, (request_id,))
+            SET status = 'ACCEPTED',
+                owner_expected_date = %s
+             WHERE request_id = %s 
+        """, (request_id, owner_expected_date, ))
 
         commit("""
             UPDATE p320_24.tool 
@@ -63,9 +80,8 @@ def return_tool(barcode):
     commit("""
         UPDATE p320_24.tool 
         SET holder = p320_24.ownership.username 
-        WHERE p320_24.ownership.username IN 
-        (SELECT username FROM p320_24.ownership 
-        WHERE p320_24.ownership.barcode = %s)
+        FROM p320_24.ownership
+        WHERE p320_24.ownership.barcode = %s
     """, (barcode,))
 
     commit("""
@@ -76,6 +92,8 @@ def return_tool(barcode):
 
     commit("""
         UPDATE p320_24.request 
-        SET status = 'Finished' 
+        SET status = 'Finished',
+        actual_return_date = now()
+         
         WHERE barcode = %s
     """, (barcode,))
