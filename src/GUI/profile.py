@@ -9,8 +9,6 @@ def get_profile_pane(root, frame2):
 
     pane = PanedWindow(frame2, width=1400, height=596, bg='#EFE2BA')
     user_dict = user.fetch_user(gbl_var.username)
-    print(gbl_var.username)
-    print(user_dict)
     left_pane = PanedWindow(pane, width=200, height=596, bg='#417154')
     left_pane.grid(column=0, row=0, pady=0, padx=0)
     middle_pane = PanedWindow(pane, width=1000, height=596, bg='#EFE2BA')
@@ -19,9 +17,13 @@ def get_profile_pane(root, frame2):
     # Logo
     top_pane = PanedWindow(bottomPane, width=1400, height=150, bg='#A67B5C')
     logo_label_font = font.Font(size=48, family='Meiryo')
-    logo_text = user_dict['first_name'] + "'s Shed"
+    logo_text = user_dict['first_name']
+    if logo_text[len(logo_text)-1] == 's' or logo_text[len(logo_text)-1] == 'S':
+        logo_text += "' Shed"
+    else:
+        logo_text += "'s Shed"
     logo_label = Label(top_pane, text=logo_text, bg='#A67B5C', fg='#EFE2BA', font=logo_label_font)
-    logo_label.pack(pady=(30, 30), padx=272)
+    logo_label.pack(pady=(30, 30), padx=285)
     top_pane.pack(pady=0, padx=0)
     # Bottom
     info_pane = PanedWindow(bottomPane, width=1400, height=446, bg='#EFE2BA')
@@ -73,7 +75,7 @@ def get_profile(root, bottom_pane):
     email = Label(user_information_pane, bg='#EFE2BA', fg='#A67B5C', text=email_string, font=user_small_info_font)
     email.pack(pady=0)
 
-    user_information_pane.grid(column=0, row=0, padx=(98, 48))
+    user_information_pane.grid(column=0, row=0, padx=(70, 48))
 
     user_modification_pane = PanedWindow(bottom_pane, width=700, height=446, bg='#EFE2BA')
 
@@ -98,16 +100,17 @@ def get_profile(root, bottom_pane):
     password_label.grid(column=0, row=3, padx=5, pady=10)
     password_text = Text(user_modification_pane, width=20, height=1, bg='gray85', font=small_font)
     password_text.grid(column=1, row=3, pady=10)
+    password_error_label = Label(user_modification_pane, text="", bg='#EFE2BA', fg='#EFE2BA')
     # Confirm Password
     confirm_password_label = Label(user_modification_pane, text="Confirm Password: ", bg='#EFE2BA', fg='#A67B5C', font=small_font)
     confirm_password_label.grid(column=0, row=4, padx=5, pady=10)
     confirm_password_text = Text(user_modification_pane, width=20, height=1, bg='gray85', font=small_font)
     confirm_password_text.grid(column=1, row=4, pady=10)
     confirm_password_button = Button(user_modification_pane, text="Change Password", font=small_font,
-                          command=lambda: updatePassword(email_text, has_email, email_error_label))
+                          command=lambda: updatePassword(password_text, confirm_password_text, password_error_label))
     confirm_password_button.grid(column=2, row=4, padx=(20, 0))
 
-    user_modification_pane.grid(column=1, row=0, padx=(0, 98))
+    user_modification_pane.grid(column=1, row=0, padx=(0, 70))
 
 
 def updateEmail(email_text, has_email, email_error_label):
@@ -120,3 +123,13 @@ def updateEmail(email_text, has_email, email_error_label):
             email_error_label.configure(fg='#EFE2BA')
     else:
         email_error_label.configure(fg='red')
+
+
+def update_password(password_text, confirm_password_text, password_error_label):
+    password = password_text.get("1.0", END).split("\n")[0]
+    confirm_password = confirm_password_text.get("1.0", END).split("\n")[0]
+    if password == confirm_password:
+        if re.search("\w+@\w+.\w+", email):
+            pass
+    else:
+        password_error_label.configure(text="Password do\nnot match!!")

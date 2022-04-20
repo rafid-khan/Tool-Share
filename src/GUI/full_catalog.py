@@ -147,7 +147,6 @@ def search_database(type_of_tool_dropdown, search_clicked, sort_type_clicked, so
                 tools_list[tool_index] = tmp_list
                 tmp_list = []
                 tool_index += 1
-                print(tool_index)
         if len(tmp_list) != 0:
             tools_list[tool_index] = tmp_list
             tool_index += 1

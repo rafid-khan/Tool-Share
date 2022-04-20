@@ -31,15 +31,9 @@ def fetch_all_users():
 
 def insert_user(**kwargs):
     commit("""
-        INSERT INTO p320_24.user (first_name, last_name, username, password) VALUES (%s, %s, %s, %s)
+        INSERT INTO p320_24.user (first_name, last_name, username, password, creation_date, last_date_accessed) 
+        VALUES (%s, %s, %s, %s, now(), now())
     """, (tuple(kwargs.values())))
-
-    commit("""
-                UPDATE p320_24.user SET last_date_accessed = now() WHERE username = %s
-            """, (kwargs.get("a"),))
-    commit("""
-                    UPDATE p320_24.user SET creation_date = now() WHERE username = %s
-                """, (kwargs.get("a"),))
 
 
 def insert_email(**kwargs):

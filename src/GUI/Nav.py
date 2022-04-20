@@ -34,7 +34,7 @@ def main(passed_username):
 
 
 def initialize_header(frame1, logo, frame2, root):
-    header_panel = PanedWindow(frame1, width=1400, height=105, bg='white')
+    header_panel = PanedWindow(frame1, width=1400, height=105, bg='#A67B5C')
 
     panel = Label(header_panel, image=logo)
     panel.grid(column=0, row=0)
@@ -141,7 +141,7 @@ def view_profile(root, frame2):
     pane = pf.get_profile_pane(root, frame2)
 
     pane.pack(padx=0, pady=0)
-    frame2.pack()
+    frame2.pack(padx=0, pady=0)
     return
 
 

@@ -94,15 +94,16 @@ def search_database(type_of_tool_dropdown, search_by_dropdown, search_box):
     global text_box
     global is_all
     global is_overdue
+    search_text = search_box.get("1.0", END).split("\n")[0]
+    identifier = search_by_dropdown.get()
     sort_by = SortType.NAME
     sort_type = SortBy.ASCENDING
-    # if sort_by_clicked.get() == "Category":
-    #     sort_by = SortType.CATEGORY
-    # if sort_type_clicked.get() == "Descending":
-    #     sort_type = SortBy.DESCENDING
     tools_dict_list = {}
-
-    if type_of_tool_dropdown.get() == "All":
+    if search_text != "":
+        tools_dict_list = tool.search_user_tools(identifier, search_text, gbl_var.username, sort_type, sort_by)
+        is_all = True
+        is_overdue = False
+    elif type_of_tool_dropdown.get() == "All":
         tools_dict_list = tool.view_user_tools(gbl_var.username, sort_type, sort_by)
         is_all = True
         is_overdue = False
@@ -128,7 +129,7 @@ def search_database(type_of_tool_dropdown, search_by_dropdown, search_box):
     tools_list = {}
     i = 0
     tmp_list = []
-    if tools_dict_list is not None:
+    if len(tools_dict_list) != 0:
         for tool_dict in tools_dict_list:
             tmp_list.append(tool_dict)
             i += 1
@@ -136,7 +137,6 @@ def search_database(type_of_tool_dropdown, search_by_dropdown, search_box):
                 tools_list[tool_index] = tmp_list
                 tmp_list = []
                 tool_index += 1
-                print(tool_index)
         if len(tmp_list) != 0:
             tools_list[tool_index] = tmp_list
             tool_index += 1
@@ -219,7 +219,8 @@ shareable_option = [
 modify_option = [
     "Name",
     "Category",
-    "Description"
+    "Description",
+    "Sharable"
 ]
 
 
@@ -308,9 +309,12 @@ def initialize_modify_action(modify_clicked, modify_text, modify_tool_button):
         elif selection == "Category":
             modify_text.configure(width=20, height=1)
             modify_tool_button["text"] = "Modify Category"
-        else:
+        elif selection == "Description":
             modify_text.configure(width=20, height=3)
             modify_tool_button["text"] = "Modify Desc"
+        else:
+            modify_text.configure(width=20, height=1)
+            modify_tool_button["text"] = "Modify Shareable"
 
     modify_clicked.trace("w", update_modify)
 
@@ -345,17 +349,18 @@ def delete_tool(barcode_text):
 
 
 def modify_tool(barcode_text, modify_clicked, modify_string):
-    print("barcode: " + barcode_text.get("1.0", END) + " what to modify: " + modify_clicked.get()
-          + " modify: " + modify_string.get("1.0", END))
     barcode = barcode_text.get("1.0", END).split("\n")[0]
     what_to_modify = modify_clicked.get().split("\n")[0]
     modify_string = modify_string.get("1.0", END).split("\n")[0]
     if what_to_modify == "Category":
         tool.create_category(a=modify_string, b=barcode)
     elif what_to_modify == "Name":
-        tool.update_tool(barcode, name=modify_string)
+        tool.update_tool_name(modify_string, barcode)
     elif what_to_modify == "Description":
-        tool.update_tool(barcode, description=modify_string)
+        tool.update_tool_description(modify_string, barcode)
+    elif what_to_modify == "Sharable":
+        if modify_string.lower() == "true" or modify_string.lower() == "false":
+            tool.update_tool_sharable(modify_string, barcode)
 
 
 def return_tool(return_tool_text):

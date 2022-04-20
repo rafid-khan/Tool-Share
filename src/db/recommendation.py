@@ -45,9 +45,11 @@ def also_borrowed(barcode):
 
 
 def top_lent_tools(username):
-    return fetch_many("""
+    print(username)
+
+    result = fetch_many("""
         SELECT p320_24.tool.name, AVG(p320_24.request.borrow_period)
-        AS "Average lent time"
+        AS "Average_lent_time"
         FROM p320_24.tool
         INNER JOIN p320_24.request
         ON p320_24.request.barcode = p320_24.tool.barcode
@@ -60,15 +62,16 @@ def top_lent_tools(username):
             AND p320_24.ownership.username = %s
         )
         GROUP BY p320_24.tool.name
-        ORDER BY "Average lent time" DESC
+        ORDER BY "Average_lent_time" DESC
         LIMIT 10
     """, (username,))
-
+    print(result)
+    return result
 
 def top_borrowed_tools(username):
     return fetch_many("""
         SELECT p320_24.tool.name, AVG(p320_24.request.borrow_period)
-        AS "Average borrowed time"
+        AS "Average_borrowed_time"
         FROM p320_24.tool
         INNER JOIN p320_24.request
         ON p320_24.request.barcode = p320_24.tool.barcode
@@ -81,7 +84,7 @@ def top_borrowed_tools(username):
             AND p320_24.tool.holder = %s
         )
         GROUP BY p320_24.tool.name
-        ORDER BY "Average borrowed time" DESC
+        ORDER BY "Average_borrowed_time" DESC
         LIMIT 10
     """, (username,))
 
@@ -96,7 +99,7 @@ def pie_chart(username):
     """, (username, username,))
 
     lent = fetch_many("""
-        SELECT COUNT(p320_24.tool.name) AS lent
+        SELECT COUNT(p320_24.tool.name) AS total
         FROM p320_24.tool
         INNER JOIN p320_24.ownership
         ON p320_24.tool.barcode = p320_24.ownership.barcode
@@ -107,7 +110,7 @@ def pie_chart(username):
     """, (username,))
 
     borrowed = fetch_many("""
-        SELECT COUNT(p320_24.tool.name) AS borrowed 
+        SELECT COUNT(p320_24.tool.name) AS total 
         FROM p320_24.tool
         INNER JOIN p320_24.ownership
         ON p320_24.tool.barcode = p320_24.ownership.barcode
@@ -115,7 +118,7 @@ def pie_chart(username):
         AND p320_24.tool.holder = %s
         INNER JOIN p320_24.request
         ON p320_24.tool.barcode = p320_24.request.barcode
-    """)
+    """, (username, ))
 
     result = total + lent + borrowed
 
@@ -123,16 +126,14 @@ def pie_chart(username):
 
 
 def latest_requests():
-    fetch_many("""
+    return fetch_many("""
         SELECT p320_24.request.request_id, p320_24.tool.name,
-        p320_24.request.barcode, p320_24.category.tag_name, 
-        p320_24.ownership.username
+        p320_24.request.barcode, p320_24.ownership.username
         FROM p320_24.request
         INNER JOIN p320_24.tool
         ON p320_24.tool.barcode = p320_24.request.barcode
-        INNER JOIN p320_24.category
-        ON p320_24.request.barcode = p320_24.category.barcode
         INNER JOIN p320_24.ownership
         ON p320_24.request.barcode = p320_24.ownership.barcode
+        LIMIT 3
     """)
 

@@ -1,4 +1,4 @@
-username = "Aaron9932"
+username = ""
 curs = None
 conn = None
 
@@ -16,5 +16,3 @@ def set_curs(init_cursor):
 def set_username(init_username):
     global username
     username = init_username
-
-
