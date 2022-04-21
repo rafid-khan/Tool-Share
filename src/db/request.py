@@ -10,7 +10,7 @@ def create_request(**kwargs):
     commit("""
             INSERT INTO p320_24.request (request_id, username, barcode, status, 
             borrow_period, request_date, owner_expected_date, actual_return_date) 
-            VALUES (%s, %s, %s, 'Pending', %s, %s, null, null)
+            VALUES (%s, %s, %s, 'Pending', %s, %s, %s, null)
         """, (tuple(kwargs.values())))
 
 
@@ -44,14 +44,14 @@ def get_users_requests_made(username):
     """, (username,))
 
 
-def handle_requests(is_accepted, request_id, owner_expected_date):
+def handle_requests(is_accepted, request_id, actual_return_date):
     if is_accepted:
         commit("""
             UPDATE p320_24.request 
-            SET status = 'ACCEPTED',
-                owner_expected_date = %s
+            SET status = 'Accepted',
+                actual_return_date = %s
              WHERE request_id = %s 
-        """, (request_id, owner_expected_date, ))
+        """, (actual_return_date, request_id, ))
 
         commit("""
             UPDATE p320_24.tool 
@@ -78,10 +78,12 @@ def handle_requests(is_accepted, request_id, owner_expected_date):
 
 def return_tool(barcode):
     commit("""
-        UPDATE p320_24.tool 
-        SET holder = p320_24.ownership.username 
+        
+UPDATE p320_24.tool
+        SET holder = p320_24.ownership.username
         FROM p320_24.ownership
         WHERE p320_24.ownership.barcode = %s
+        AND p320_24.tool.barcode = p320_24.ownership.barcode;
     """, (barcode,))
 
     commit("""
@@ -92,8 +94,7 @@ def return_tool(barcode):
 
     commit("""
         UPDATE p320_24.request 
-        SET status = 'Finished',
-        actual_return_date = now()
-         
+        SET p320_24.request.status = 'Finished'
+        AND actual_return_date = now()
         WHERE barcode = %s
     """, (barcode,))

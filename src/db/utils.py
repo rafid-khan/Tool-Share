@@ -6,6 +6,8 @@ from psycopg2.extras import RealDictCursor
 from sshtunnel import SSHTunnelForwarder, HandlerSSHTunnelForwarderError
 import GUI.global_variables as gbl_var
 
+
+
 DB_CFG = os.path.join(os.path.dirname(__file__), '../../db-cfg.yml')
 LOCAL_PORT = 5432
 

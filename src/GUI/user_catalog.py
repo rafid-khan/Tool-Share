@@ -372,29 +372,3 @@ def return_tool(return_tool_text):
 
 def throw_value_error(price_error_label):
     price_error_label.configure(fg='red')
-
-
-"""
-Barcode: XXXXXXXX Name: XXXXXXXXXXXXX
-Categories: 
-Description:
-
-*** OVERDUE ***
-Barcode: XXXXXXXX Name: XXXXXXXXXXXXX
-Categories: 
-Return Date:
-Description:
-
-*** OVERDUE ***
-Barcode: XXXXXXXX Name: XXXXXXXXXXXXX
-Categories: 
-Return Date:
-Description:
-
-*** OVERDUE ***
-Barcode: XXXXXXXX Name: XXXXXXXXXXXXX
-Categories: 
-Return Date:
-Description:
-
-"""

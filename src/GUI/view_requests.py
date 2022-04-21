@@ -244,15 +244,3 @@ def print_made_string(user_tool):
            + "\nOwner:               | " + user_tool['username']
            + "\nDate Requested:      | " + str(user_tool['request_date'])
            + "\nDate to be returned: | " + str(user_tool['owner_expected_date']) + "\n\n")
-"""
-Request ID:          REQTXXXXXXXX 
-Holder:              XXX1234
-Date Requested:      XXXX-XX-XX
-Date to be returned: XXXX-XX-XX
-
-Request ID:          REQTXXXXXXXX 
-Owner:               XXX1234
-Date Requested:      XXXX-XX-XX
-Date to be returned: XXXX-XX-XX
-
-"""

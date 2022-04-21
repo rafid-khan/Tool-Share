@@ -45,7 +45,6 @@ def also_borrowed(barcode):
 
 
 def top_lent_tools(username):
-    print(username)
 
     result = fetch_many("""
         SELECT p320_24.tool.name, AVG(p320_24.request.borrow_period)
@@ -53,20 +52,17 @@ def top_lent_tools(username):
         FROM p320_24.tool
         INNER JOIN p320_24.request
         ON p320_24.request.barcode = p320_24.tool.barcode
-        WHERE p320_24.tool.name IN (
-            SELECT p320_24.tool.name
-            FROM p320_24.tool
-            INNER JOIN p320_24.ownership
-            ON p320_24.tool.barcode = p320_24.ownership.barcode
-            AND p320_24.tool.holder != p320_24.ownership.username
-            AND p320_24.ownership.username = %s
-        )
+        INNER JOIN p320_24.ownership
+    ON p320_24.tool.barcode = p320_24.ownership.barcode
+        WHERE p320_24.tool.holder != p320_24.ownership.username
+        AND p320_24.ownership.username = %s
         GROUP BY p320_24.tool.name
         ORDER BY "Average_lent_time" DESC
         LIMIT 10
     """, (username,))
     print(result)
     return result
+
 
 def top_borrowed_tools(username):
     return fetch_many("""
@@ -75,14 +71,10 @@ def top_borrowed_tools(username):
         FROM p320_24.tool
         INNER JOIN p320_24.request
         ON p320_24.request.barcode = p320_24.tool.barcode
-        WHERE p320_24.tool.name IN (
-            SELECT p320_24.tool.name
-            FROM p320_24.tool
-            INNER JOIN p320_24.ownership
-            ON p320_24.tool.barcode = p320_24.ownership.barcode
-            AND p320_24.tool.holder != p320_24.ownership.username
-            AND p320_24.tool.holder = %s
-        )
+        INNER JOIN p320_24.ownership
+        ON p320_24.tool.barcode = p320_24.ownership.barcode
+        WHERE p320_24.tool.holder != p320_24.ownership.username
+        AND p320_24.tool.holder = %s
         GROUP BY p320_24.tool.name
         ORDER BY "Average_borrowed_time" DESC
         LIMIT 10
@@ -128,12 +120,15 @@ def pie_chart(username):
 def latest_requests():
     return fetch_many("""
         SELECT p320_24.request.request_id, p320_24.tool.name,
-        p320_24.request.barcode, p320_24.ownership.username
+        p320_24.request.barcode, p320_24.request.username,
+        p320_24.request.request_date
         FROM p320_24.request
         INNER JOIN p320_24.tool
         ON p320_24.tool.barcode = p320_24.request.barcode
         INNER JOIN p320_24.ownership
         ON p320_24.request.barcode = p320_24.ownership.barcode
+        WHERE p320_24.request.status = 'Pending'
+        ORDER BY p320_24.request.request_date DESC
         LIMIT 3
     """)
 

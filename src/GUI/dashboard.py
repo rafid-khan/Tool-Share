@@ -28,7 +28,7 @@ def get_dashboard_pane(root, frame2):
     top_lent_tools_label = Label(right_pane, text="Top Lent Tools:", font=label_font, bg='#EFE2BA')
     top_lent_tools_label.grid(column=0, row=0, padx=(95, 0))
     top_lent_tools_text = Text(right_pane, height=33, width=40, bg='gray85', yscrollcommand=False)
-    top_lent_tools_text.grid(column=0, row=1, padx=(120, 15), pady=(5, 13))
+    top_lent_tools_text.grid(column=0, row=1, padx=(60, 15), pady=(5, 13))
 
     top_borrowed_tools_label = Label(right_pane, text="Top Borrowed Tools:", font=label_font, bg='#EFE2BA')
     top_borrowed_tools_label.grid(column=1, row=0, padx=(0, 95))
@@ -45,14 +45,16 @@ def get_dashboard_pane(root, frame2):
 def load_top_lent(top_requested_tools_text):
     tool_list = rec.top_lent_tools(gbl_var.username)
     string_to_print = "\n\n"
-    # print(tool_list)
-    for i in range(0, len(tool_list) - 1):
-        string_to_print += "    " + str(i+1) + ". Name:  " + tool_list[i]['name'] \
-                                 + "\n       Average: " + str(tool_list[i]['Average_lent_time']) + "\n\n"
+    if len(tool_list) != 0:
+        for i in range(0, len(tool_list) - 1):
+            string_to_print += "    " + str(i+1) + ". Name:  " + tool_list[i]['name'] \
+                                     + "\n       Average: " + str(tool_list[i]['Average_lent_time']) + "\n\n"
 
-    if len(tool_list) == 10:
-        string_to_print += "   10. Name:  " + tool_list[9]['name'] \
-                       + "\n       Average: " + str(tool_list[9]['Average_lent_time']) + "\n\n"
+        if len(tool_list) == 10:
+            string_to_print += "   10. Name:  " + tool_list[9]['name'] \
+                           + "\n       Average: " + str(tool_list[9]['Average_lent_time']) + "\n\n"
+    else:
+        string_to_print = "\n\n       *** Not Enough Data ***"
     top_requested_tools_text.configure(state='normal')
     top_requested_tools_text.delete(1.0, "end")
     top_requested_tools_text.insert(1.0, string_to_print)
@@ -60,16 +62,19 @@ def load_top_lent(top_requested_tools_text):
 
 
 def load_top_borrowed(top_requested_tools_text):
-    tool_list = rec.top_lent_tools(gbl_var.username)
+    tool_list = rec.top_borrowed_tools(gbl_var.username)
     string_to_print = "\n\n"
     # print(tool_list)
-    for i in range(0, len(tool_list) - 1):
-        string_to_print += "    " + str(i + 1) + ". Name:  " + tool_list[i]['name'] \
-                           + "\n       Average: " + str(tool_list[i]['Average_lent_time']) + "\n\n"
+    if len(tool_list) != 0:
+        for i in range(0, len(tool_list) - 1):
+            string_to_print += "    " + str(i + 1) + ". Name:  " + tool_list[i]['name'] \
+                               + "\n       Average: " + str(tool_list[i]['Average_borrowed_time']) + "\n\n"
 
-    if len(tool_list) == 10:
-        string_to_print += "   10. Name:  " + tool_list[9]['name'] \
-                       + "\n       Average: " + str(tool_list[9]['Average_lent_time']) + "\n\n"
+        if len(tool_list) == 10:
+            string_to_print += "   10. Name:  " + tool_list[9]['name'] \
+                           + "\n       Average: " + str(tool_list[9]['Average_borrowed_time']) + "\n\n"
+    else:
+        string_to_print = "\n\n       *** Not Enough Data ***"
     top_requested_tools_text.configure(state='normal')
     top_requested_tools_text.delete(1.0, "end")
     top_requested_tools_text.insert(1.0, string_to_print)
@@ -136,6 +141,7 @@ def create_pie_chart(root):
                 j += 1
     else:
         data_point_name = ["No Data"]
+        index_list.append(0)
         Sum = 1.0
         color = "#" + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])
         c.create_arc((2, 2, 296, 296), fill=color, outline=color, start=0

@@ -1,8 +1,12 @@
 from tkinter import *
 import tkinter.font as font
 from tkcalendar import Calendar
+
+import src.db.tool
 import src.db.tool as tool
+
 import GUI.global_variables as gbl_var
+import datetime
 from src.api.utils import SortType
 from src.api.utils import SortBy
 import src.db.request as request
@@ -264,17 +268,30 @@ def initialize_user_edit_pane(modify_pane):
 
 def request_tool(barcode_text, cal, borrow_period_text):
     barcode = barcode_text.get("1.0", END).split("\n")[0]
-    date_list = cal.get_date().split("/")
-    date_string = "20" + date_list[2] + "/" + date_list[0] + "/" + date_list[1]
-    borrowed_period = borrow_period_text.get("1.0", END).split("\n")[0]
-    username = gbl_var.username
-    request_id = "REQT" + str(rand.randrange(10000000, 99999999))
+    tool_dict = src.db.tool.fetch_tool(barcode)
+    if tool_dict['shareable'] is True:
+        borrowed_period = borrow_period_text.get("1.0", END).split("\n")[0]
+        date = cal.get_date()
+        date_1 = datetime.datetime.strptime(date, "%m/%d/%y")
+        expected_date = date_1 + datetime.timedelta(days=int(borrowed_period))
+        print(str(expected_date)[0:10])
+        date_list = date.split("/")
+        date_string = "20" + date_list[2] + "/" + date_list[0] + "/" + date_list[1]
+        # expected_date_list = str(expected_date).split("-")
+        # expected_date_string = "20" + expected_date_list[2] + "/" + expected_date_list[0] + "/" + expected_date_list[1]
 
-    while request.get_request(request_id) is not None:
+        username = gbl_var.username
         request_id = "REQT" + str(rand.randrange(10000000, 99999999))
+        while request.get_request(request_id) is not None:
+            request_id = "REQT" + str(rand.randrange(10000000, 99999999))
 
-    request.create_request(a=request_id, b=username, c=barcode, d=borrowed_period, e=date_string)
-    get_recommendations(barcode)
+        request.create_request(a=request_id,
+                               b=username,
+                               c=barcode,
+                               d=borrowed_period,
+                               e=date_string,
+                               f=str(expected_date)[0:10])
+        get_recommendations(barcode)
     pass
 
 
@@ -295,19 +312,3 @@ def get_recommendations(barcode):
     recommendation_text_box.delete(1.0, "end")
     recommendation_text_box.insert(1.0, string_to_print)
     recommendation_text_box.configure(state='disabled')
-
-
-"""
-Barcode: XXXXXXXX Name: XXXXXXXXXXXXX
-Categories: 
-Description:
-
-Barcode: XXXXXXXX Name: XXXXXXXXXXXXX
-Categories: 
-Description:
-
-Barcode: XXXXXXXX Name: XXXXXXXXXXXXX
-Categories: 
-Description:
-
-"""
